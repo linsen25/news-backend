@@ -1,0 +1,1654 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/health": {
+      "get": {
+        "operationId": "HealthController_check",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "status": "ok",
+                    "database": "connected"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Check API and PostgreSQL connectivity",
+        "tags": [
+          "Health"
+        ]
+      }
+    },
+    "/api/auth/login": {
+      "post": {
+        "operationId": "AuthController_login",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/api/audit-logs": {
+      "get": {
+        "operationId": "AuditController_findAll",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AuditLogDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "jwt": []
+          }
+        ],
+        "tags": [
+          "Audit"
+        ]
+      }
+    },
+    "/api/users": {
+      "get": {
+        "operationId": "UsersController_findAll",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/UserDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "jwt": []
+          }
+        ],
+        "tags": [
+          "Users"
+        ]
+      }
+    },
+    "/api/users/roles": {
+      "get": {
+        "operationId": "UsersController_findRoles",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/RoleDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "jwt": []
+          }
+        ],
+        "tags": [
+          "Users"
+        ]
+      }
+    },
+    "/api/users/permissions": {
+      "get": {
+        "operationId": "UsersController_findPermissions",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PermissionDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "jwt": []
+          }
+        ],
+        "tags": [
+          "Users"
+        ]
+      }
+    },
+    "/api/articles": {
+      "get": {
+        "operationId": "ArticlesController_findAll",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/Object"
+                }
+              ]
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20,
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/Object"
+                }
+              ]
+            }
+          },
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "categoryId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ArticlePageDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "jwt": []
+          }
+        ],
+        "tags": [
+          "Articles",
+          "Review"
+        ]
+      },
+      "post": {
+        "operationId": "ArticlesController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateArticleDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ArticleDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "jwt": []
+          }
+        ],
+        "tags": [
+          "Articles",
+          "Review"
+        ]
+      }
+    },
+    "/api/articles/public": {
+      "get": {
+        "operationId": "ArticlesController_findPublished",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ArticleDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "jwt": []
+          }
+        ],
+        "tags": [
+          "Articles",
+          "Review"
+        ]
+      }
+    },
+    "/api/articles/public/{id}": {
+      "get": {
+        "operationId": "ArticlesController_findPublishedOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ArticleDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "jwt": []
+          }
+        ],
+        "tags": [
+          "Articles",
+          "Review"
+        ]
+      }
+    },
+    "/api/articles/public/slug/{slug}": {
+      "get": {
+        "operationId": "ArticlesController_findPublishedBySlug",
+        "parameters": [
+          {
+            "name": "slug",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ArticleDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "jwt": []
+          }
+        ],
+        "tags": [
+          "Articles",
+          "Review"
+        ]
+      }
+    },
+    "/api/articles/{id}/preview": {
+      "get": {
+        "operationId": "ArticlesController_preview",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "token",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ArticleDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "jwt": []
+          }
+        ],
+        "summary": "Preview draft or unpublished article",
+        "tags": [
+          "Articles",
+          "Review"
+        ]
+      }
+    },
+    "/api/articles/{id}": {
+      "get": {
+        "operationId": "ArticlesController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ArticleDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "jwt": []
+          }
+        ],
+        "tags": [
+          "Articles",
+          "Review"
+        ]
+      },
+      "put": {
+        "operationId": "ArticlesController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateArticleDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ArticleDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "jwt": []
+          }
+        ],
+        "tags": [
+          "Articles",
+          "Review"
+        ]
+      },
+      "delete": {
+        "operationId": "ArticlesController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "jwt": []
+          }
+        ],
+        "tags": [
+          "Articles",
+          "Review"
+        ]
+      }
+    },
+    "/api/articles/{id}/history": {
+      "get": {
+        "operationId": "ArticlesController_history",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ArticleHistoryDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "jwt": []
+          }
+        ],
+        "tags": [
+          "Articles",
+          "Review"
+        ]
+      }
+    },
+    "/api/articles/{id}/submit": {
+      "post": {
+        "operationId": "ArticlesController_submit",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ArticleDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "jwt": []
+          }
+        ],
+        "summary": "Submit draft for review",
+        "tags": [
+          "Articles",
+          "Review"
+        ]
+      }
+    },
+    "/api/articles/{id}/approve": {
+      "post": {
+        "operationId": "ArticlesController_approve",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ArticleDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "jwt": []
+          }
+        ],
+        "summary": "Approve article under review",
+        "tags": [
+          "Articles",
+          "Review"
+        ]
+      }
+    },
+    "/api/articles/{id}/reject": {
+      "post": {
+        "operationId": "ArticlesController_reject",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RejectArticleDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ArticleDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "jwt": []
+          }
+        ],
+        "summary": "Reject article with required review comment",
+        "tags": [
+          "Articles",
+          "Review"
+        ]
+      }
+    },
+    "/api/articles/{id}/publish": {
+      "post": {
+        "operationId": "ArticlesController_publish",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ArticleDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "jwt": []
+          }
+        ],
+        "summary": "Publish approved article",
+        "tags": [
+          "Articles",
+          "Review"
+        ]
+      }
+    },
+    "/api/categories": {
+      "get": {
+        "operationId": "CategoriesController_findAll",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Categories"
+        ]
+      }
+    },
+    "/api/tags": {
+      "get": {
+        "operationId": "TagsController_findAll",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Tags"
+        ]
+      }
+    },
+    "/api/upload/images": {
+      "post": {
+        "operationId": "UploadController_uploadImage",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "file"
+                ],
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MediaAssetDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "jwt": []
+          }
+        ],
+        "tags": [
+          "Upload"
+        ]
+      }
+    },
+    "/api/upload/media": {
+      "get": {
+        "operationId": "UploadController_findAll",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MediaAssetDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "jwt": []
+          }
+        ],
+        "tags": [
+          "Upload"
+        ]
+      }
+    },
+    "/api/upload/media/{id}": {
+      "delete": {
+        "operationId": "UploadController_deleteImage",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "jwt": []
+          }
+        ],
+        "tags": [
+          "Upload"
+        ]
+      }
+    },
+    "/api/revisions/article/{articleId}": {
+      "get": {
+        "operationId": "RevisionsController_findByArticle",
+        "parameters": [
+          {
+            "name": "articleId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Revisions"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "News Platform API",
+    "description": "Mock-backed CMS contract for authentication, articles, review workflow, users and audit logs.",
+    "version": "1.0.0",
+    "contact": {}
+  },
+  "tags": [
+    {
+      "name": "Auth",
+      "description": ""
+    },
+    {
+      "name": "Articles",
+      "description": ""
+    },
+    {
+      "name": "Review",
+      "description": ""
+    },
+    {
+      "name": "Users",
+      "description": ""
+    },
+    {
+      "name": "Audit",
+      "description": ""
+    },
+    {
+      "name": "Upload",
+      "description": ""
+    }
+  ],
+  "servers": [],
+  "components": {
+    "securitySchemes": {
+      "jwt": {
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "type": "http"
+      }
+    },
+    "schemas": {
+      "LoginDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "example": "author@example.com"
+          },
+          "password": {
+            "type": "string",
+            "example": "123456"
+          }
+        },
+        "required": [
+          "email",
+          "password"
+        ]
+      },
+      "PermissionDto": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string",
+            "example": "articles.submit"
+          },
+          "module": {
+            "type": "string",
+            "enum": [
+              "articles.edit",
+              "articles.review",
+              "accounts.manage"
+            ],
+            "example": "articles.edit"
+          },
+          "description": {
+            "type": "string",
+            "example": "提交审核"
+          }
+        },
+        "required": [
+          "key",
+          "module",
+          "description"
+        ]
+      },
+      "RoleDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "role-author"
+          },
+          "name": {
+            "type": "string",
+            "enum": [
+              "Author",
+              "Reviewer",
+              "Admin"
+            ]
+          },
+          "permissions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PermissionDto"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "permissions"
+        ]
+      },
+      "UserDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "user-author"
+          },
+          "username": {
+            "type": "string",
+            "example": "林作者",
+            "description": "Display username"
+          },
+          "email": {
+            "type": "string",
+            "example": "author@example.com"
+          },
+          "role": {
+            "$ref": "#/components/schemas/RoleDto"
+          },
+          "permissions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PermissionDto"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "username",
+          "email",
+          "role",
+          "permissions"
+        ]
+      },
+      "LoginResponseDto": {
+        "type": "object",
+        "properties": {
+          "accessToken": {
+            "type": "string",
+            "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+          },
+          "user": {
+            "$ref": "#/components/schemas/UserDto"
+          }
+        },
+        "required": [
+          "accessToken",
+          "user"
+        ]
+      },
+      "EntityReferenceDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "user-author"
+          },
+          "name": {
+            "type": "string",
+            "example": "林作者"
+          }
+        },
+        "required": [
+          "id",
+          "name"
+        ]
+      },
+      "ArticleReferenceDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "article-001"
+          },
+          "title": {
+            "type": "string",
+            "example": "生成式 AI 正在改变新闻编辑流程"
+          }
+        },
+        "required": [
+          "id",
+          "title"
+        ]
+      },
+      "AuditLogDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "audit-001"
+          },
+          "user": {
+            "$ref": "#/components/schemas/EntityReferenceDto"
+          },
+          "action": {
+            "type": "string",
+            "enum": [
+              "CREATE_ARTICLE",
+              "UPDATE_ARTICLE",
+              "SUBMIT_REVIEW",
+              "APPROVE_ARTICLE",
+              "REJECT_ARTICLE",
+              "PUBLISH_ARTICLE",
+              "DELETE_ARTICLE",
+              "LOGIN"
+            ]
+          },
+          "article": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ArticleReferenceDto"
+              }
+            ]
+          },
+          "description": {
+            "type": "string",
+            "example": "提交文章审核"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "user",
+          "action",
+          "description",
+          "createdAt"
+        ]
+      },
+      "Object": {
+        "type": "object",
+        "properties": {}
+      },
+      "TipTapMarkDto": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "example": "bold"
+          },
+          "attrs": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "TipTapNodeDto": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "example": "paragraph"
+          },
+          "attrs": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "content": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TipTapNodeDto"
+            }
+          },
+          "marks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TipTapMarkDto"
+            }
+          },
+          "text": {
+            "type": "string",
+            "example": "正文内容"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "TipTapDocumentDto": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "doc"
+            ],
+            "example": "doc"
+          },
+          "content": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TipTapNodeDto"
+            }
+          }
+        },
+        "required": [
+          "type",
+          "content"
+        ]
+      },
+      "CategoryReferenceDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "user-author"
+          },
+          "name": {
+            "type": "string",
+            "example": "林作者"
+          },
+          "slug": {
+            "type": "string",
+            "example": "ai"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "slug"
+        ]
+      },
+      "TagDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "user-author"
+          },
+          "name": {
+            "type": "string",
+            "example": "林作者"
+          },
+          "slug": {
+            "type": "string",
+            "example": "ai"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "slug"
+        ]
+      },
+      "ArticleDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "article-001"
+          },
+          "title": {
+            "type": "string",
+            "example": "生成式 AI 正在改变新闻编辑流程"
+          },
+          "slug": {
+            "type": "string",
+            "example": "generative-ai-newsroom"
+          },
+          "summary": {
+            "type": "string",
+            "example": "从资料整理到内容校对，AI 正在改变编辑流程。"
+          },
+          "metaTitle": {
+            "type": "string",
+            "example": "生成式 AI 正在改变新闻编辑流程｜News Platform"
+          },
+          "metaDescription": {
+            "type": "string",
+            "example": "了解生成式 AI 对新闻编辑流程的影响。"
+          },
+          "keywords": {
+            "example": [
+              "AI",
+              "新闻编辑"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "content": {
+            "$ref": "#/components/schemas/TipTapDocumentDto"
+          },
+          "coverImage": {
+            "type": "string",
+            "example": "https://example.com/cover.jpg"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "draft",
+              "review",
+              "approved",
+              "rejected",
+              "published"
+            ],
+            "example": "draft"
+          },
+          "author": {
+            "$ref": "#/components/schemas/EntityReferenceDto"
+          },
+          "currentEditor": {
+            "$ref": "#/components/schemas/EntityReferenceDto"
+          },
+          "category": {
+            "$ref": "#/components/schemas/CategoryReferenceDto"
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TagDto"
+            }
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "publishedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "slug",
+          "summary",
+          "metaTitle",
+          "metaDescription",
+          "keywords",
+          "content",
+          "coverImage",
+          "status",
+          "author",
+          "currentEditor",
+          "category",
+          "tags",
+          "createdAt",
+          "updatedAt",
+          "publishedAt"
+        ]
+      },
+      "ArticlePageDto": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ArticleDto"
+            }
+          },
+          "total": {
+            "type": "number",
+            "example": 100
+          },
+          "page": {
+            "type": "number",
+            "example": 1
+          },
+          "limit": {
+            "type": "number",
+            "example": 20
+          }
+        },
+        "required": [
+          "items",
+          "total",
+          "page",
+          "limit"
+        ]
+      },
+      "ReviewCommentDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "comment-001"
+          },
+          "article": {
+            "$ref": "#/components/schemas/ArticleReferenceDto"
+          },
+          "reviewer": {
+            "$ref": "#/components/schemas/EntityReferenceDto"
+          },
+          "content": {
+            "type": "string",
+            "example": "图片版权不明确，请补充来源。"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "article",
+          "reviewer",
+          "content",
+          "createdAt"
+        ]
+      },
+      "ArticleHistoryDto": {
+        "type": "object",
+        "properties": {
+          "auditLogs": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AuditLogDto"
+            }
+          },
+          "reviewComments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ReviewCommentDto"
+            }
+          }
+        },
+        "required": [
+          "auditLogs",
+          "reviewComments"
+        ]
+      },
+      "CreateArticleDto": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "example": "加拿大 AI 政策更新"
+          },
+          "slug": {
+            "type": "string",
+            "example": "canada-ai-policy"
+          },
+          "summary": {
+            "type": "string",
+            "example": "政策更新摘要"
+          },
+          "metaTitle": {
+            "type": "string",
+            "example": "加拿大 AI 政策更新｜News Platform"
+          },
+          "metaDescription": {
+            "type": "string",
+            "example": "了解加拿大最新人工智能政策及其影响。"
+          },
+          "keywords": {
+            "example": [
+              "加拿大",
+              "AI",
+              "政策"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "content": {
+            "$ref": "#/components/schemas/TipTapDocumentDto"
+          },
+          "coverImage": {
+            "type": "string",
+            "example": "https://example.com/cover.jpg"
+          },
+          "authorId": {
+            "type": "string",
+            "example": "user-author"
+          },
+          "currentEditorId": {
+            "type": "string",
+            "example": "user-author"
+          },
+          "categoryId": {
+            "type": "string",
+            "example": "cat-ai"
+          },
+          "tagIds": {
+            "example": [
+              "tag-openai"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "draft",
+              "review",
+              "approved",
+              "rejected",
+              "published"
+            ]
+          }
+        },
+        "required": [
+          "title",
+          "authorId",
+          "categoryId"
+        ]
+      },
+      "UpdateArticleDto": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "example": "加拿大 AI 政策更新"
+          },
+          "slug": {
+            "type": "string",
+            "example": "canada-ai-policy"
+          },
+          "summary": {
+            "type": "string",
+            "example": "政策更新摘要"
+          },
+          "metaTitle": {
+            "type": "string",
+            "example": "加拿大 AI 政策更新｜News Platform"
+          },
+          "metaDescription": {
+            "type": "string",
+            "example": "了解加拿大最新人工智能政策及其影响。"
+          },
+          "keywords": {
+            "example": [
+              "加拿大",
+              "AI",
+              "政策"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "content": {
+            "$ref": "#/components/schemas/TipTapDocumentDto"
+          },
+          "coverImage": {
+            "type": "string",
+            "example": "https://example.com/cover.jpg"
+          },
+          "authorId": {
+            "type": "string",
+            "example": "user-author"
+          },
+          "currentEditorId": {
+            "type": "string",
+            "example": "user-author"
+          },
+          "categoryId": {
+            "type": "string",
+            "example": "cat-ai"
+          },
+          "tagIds": {
+            "example": [
+              "tag-openai"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "draft",
+              "review",
+              "approved",
+              "rejected",
+              "published"
+            ]
+          }
+        }
+      },
+      "RejectArticleDto": {
+        "type": "object",
+        "properties": {
+          "comment": {
+            "type": "string",
+            "example": "图片版权不明确，请补充来源。",
+            "minLength": 2
+          }
+        },
+        "required": [
+          "comment"
+        ]
+      },
+      "MediaAssetDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "media-001"
+          },
+          "url": {
+            "type": "string",
+            "example": "https://res.cloudinary.com/demo/image/upload/example.jpg"
+          },
+          "publicId": {
+            "type": "string",
+            "example": "news-platform/example"
+          },
+          "filename": {
+            "type": "string",
+            "example": "press-conference.jpg"
+          },
+          "mimeType": {
+            "type": "string",
+            "example": "image/jpeg"
+          },
+          "size": {
+            "type": "number",
+            "example": 245760
+          },
+          "uploadedBy": {
+            "$ref": "#/components/schemas/EntityReferenceDto"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "referenceCount": {
+            "type": "number",
+            "example": 2
+          }
+        },
+        "required": [
+          "id",
+          "url",
+          "publicId",
+          "filename",
+          "mimeType",
+          "size",
+          "uploadedBy",
+          "createdAt",
+          "referenceCount"
+        ]
+      }
+    }
+  }
+}
