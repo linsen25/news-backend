@@ -155,7 +155,11 @@ export class ArticlesService {
 
   async submit(id: string, actor: User): Promise<Article> {
     const article = await this.findOne(id, actor);
-    if (article.author.id !== actor.id) {
+    const canManageAllArticles = this.permissions.has(
+      actor,
+      'users.permissions.manage',
+    );
+    if (article.author.id !== actor.id && !canManageAllArticles) {
       throw new ForbiddenException('Authors can only submit their own articles');
     }
     this.requireTransition(article.status, ['draft', 'rejected'], 'review');
