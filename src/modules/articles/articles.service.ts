@@ -80,8 +80,8 @@ export class ArticlesService {
         content: [{ type: 'paragraph' }],
       },
       coverImage: input.coverImage ?? '',
-      byline: input.byline?.trim() || actor.name,
-      articleDate: input.articleDate ? new Date(input.articleDate) : new Date(),
+      byline: input.byline?.trim() || '',
+      articleDate: new Date(input.articleDate),
       authorId: actor.id,
       currentEditorId: actor.id,
       categoryId: input.categoryId,
@@ -137,6 +137,8 @@ export class ArticlesService {
       status: 'draft',
       publishedSnapshot: article.status === 'published' ? article : article.status === 'withdrawn' ? null : undefined,
       publishedSlug: article.status === 'published' ? article.slug : article.status === 'withdrawn' ? null : undefined,
+      withdrawalReason: article.status === 'withdrawn' ? null : undefined,
+      withdrawnAt: article.status === 'withdrawn' ? null : undefined,
       expectedUpdatedAt: input.expectedUpdatedAt
         ? new Date(input.expectedUpdatedAt)
         : undefined,
@@ -162,6 +164,7 @@ export class ArticlesService {
       throw new ForbiddenException('Authors can only submit their own articles');
     }
     this.requireTransition(article.status, ['draft', 'rejected'], 'review');
+    this.validateForPublication(article);
     return this.workflow.transition({
       article,
       actor,
@@ -172,16 +175,18 @@ export class ArticlesService {
     });
   }
 
-  async approve(id: string, actor: User): Promise<Article> {
+  async approve(id: string, actor: User, comment?: string): Promise<Article> {
     const article = await this.findOne(id, actor);
+    this.requireIndependentReviewer(article, actor);
     this.requireTransition(article.status, ['review'], 'approved');
     return this.workflow.transition({
       article,
       actor,
       status: 'approved',
       action: 'APPROVE_ARTICLE',
-      description: `审核通过文章《${article.title}》`,
-      revisionNote: '审核通过',
+      description: `审核通过文章《${article.title}》${comment ? `：${comment}` : ''}`,
+      revisionNote: comment ? `审核通过：${comment}` : '审核通过',
+      reviewComment: comment ? `审核通过：${comment}` : undefined,
     });
   }
 
@@ -191,6 +196,7 @@ export class ArticlesService {
     comment: string,
   ): Promise<Article> {
     const article = await this.findOne(id, actor);
+    this.requireIndependentReviewer(article, actor);
     this.requireTransition(article.status, ['review', 'approved'], 'rejected');
     return this.workflow.transition({
       article,
@@ -206,6 +212,7 @@ export class ArticlesService {
   async publish(id: string, actor: User): Promise<Article> {
     const article = await this.findOne(id, actor);
     this.requireTransition(article.status, ['approved'], 'published');
+    this.validateForPublication(article);
     return this.workflow.transition({
       article,
       actor,
@@ -217,7 +224,7 @@ export class ArticlesService {
     });
   }
 
-  async withdraw(id: string, actor: User): Promise<Article> {
+  async withdraw(id: string, actor: User, reason: string): Promise<Article> {
     const article = await this.findOne(id, actor);
     if (article.status !== 'published' && !article.hasPublishedVersion) {
       throw new BadRequestException('Only a publicly visible article can be withdrawn');
@@ -227,10 +234,12 @@ export class ArticlesService {
       actor,
       status: 'withdrawn',
       action: 'WITHDRAW_ARTICLE',
-      description: `撤下文章《${article.title}》`,
-      revisionNote: '文章撤稿',
+      description: `撤下文章《${article.title}》：${reason}`,
+      revisionNote: `文章撤稿：${reason}`,
       publishedSnapshot: article.status === 'published' ? article : undefined,
       publishedSlug: article.status === 'published' ? article.slug : undefined,
+      withdrawalReason: reason,
+      withdrawnAt: new Date(),
     });
   }
 
@@ -263,11 +272,27 @@ export class ArticlesService {
     return article;
   }
 
+  async findWithdrawalBySlug(slug: string) {
+    const notice = await this.articles.findWithdrawalBySlug(slug);
+    if (!notice?.withdrawalReason || !notice.withdrawnAt) {
+      throw new NotFoundException(`Withdrawal notice ${slug} not found`);
+    }
+    return {
+      title: notice.title,
+      slug: notice.publishedSlug || notice.slug,
+      reason: notice.withdrawalReason,
+      withdrawnAt: notice.withdrawnAt.toISOString(),
+    };
+  }
+
   async remove(id: string, actor: User): Promise<void> {
     if (!this.permissions.has(actor, 'users.permissions.manage')) {
       throw new ForbiddenException('Only admins can delete articles');
     }
     const article = await this.findOne(id);
+    if (article.status === 'published' || article.status === 'withdrawn' || article.hasPublishedVersion || article.publishedAt) {
+      throw new BadRequestException('已经公开过的文章必须保留历史记录，只能撤稿，不能删除');
+    }
     await this.workflow.delete(article, actor);
   }
 
@@ -316,6 +341,26 @@ export class ArticlesService {
         `Cannot transition article from ${current} to ${to}`,
       );
     }
+  }
+
+  private requireIndependentReviewer(article: Article, actor: User): void {
+    if (article.author.id === actor.id && !this.permissions.has(actor, 'users.permissions.manage')) {
+      throw new ForbiddenException('审核员不能审核自己录入的文章');
+    }
+  }
+
+  private validateForPublication(article: Article): void {
+    if (!article.title.trim()) throw new BadRequestException('发布前必须填写文章标题');
+    if (!article.summary.trim()) throw new BadRequestException('发布前必须填写文章摘要');
+    if (!article.articleDate) throw new BadRequestException('发布前必须填写稿件日期');
+    if (!article.category.id || !article.tags.length) throw new BadRequestException('发布前必须选择分类和至少一个标签');
+    const nodes = article.content.content ?? [];
+    const hasContent = (items: typeof nodes): boolean => items.some((node) =>
+      (node.type === 'text' && Boolean(node.text?.trim())) || node.type === 'image' || hasContent(node.content ?? []),
+    );
+    if (!hasContent(nodes)) throw new BadRequestException('发布前必须填写正文内容');
+    const hasImage = Boolean(article.coverImage) || this.extractMediaUrls(article.content, '').length > 0;
+    if (!hasImage) throw new BadRequestException('发布前必须设置封面或在正文中插入至少一张图片');
   }
 
   private toSlug(title: string): string {

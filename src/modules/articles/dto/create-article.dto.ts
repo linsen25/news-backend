@@ -49,10 +49,9 @@ export class CreateArticleDto {
   @IsOptional()
   byline?: string;
 
-  @ApiPropertyOptional({ example: '2026-08-12T00:00:00.000Z', format: 'date-time', description: '稿件日期；与系统创建时间和发布时间分开' })
+  @ApiProperty({ example: '2026-08-12T00:00:00.000Z', format: 'date-time', description: '稿件日期；与系统创建时间和发布时间分开' })
   @IsDateString()
-  @IsOptional()
-  articleDate?: string;
+  articleDate!: string;
 
   @ApiProperty({ example: 'user-author' })
   @IsString()

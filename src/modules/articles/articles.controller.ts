@@ -31,6 +31,9 @@ import { User } from '../../common/types/domain';
 import { ArticleQueryDto } from './dto/article-query.dto';
 import { ArticlePageDto } from './dto/article-page.dto';
 import { JwtService } from '@nestjs/jwt';
+import { ApproveArticleDto } from './dto/approve-article.dto';
+import { WithdrawArticleDto } from './dto/withdraw-article.dto';
+import { WithdrawalNoticeDto } from './dto/withdrawal-notice.dto';
 
 @ApiTags('Articles', 'Review')
 @ApiBearerAuth('jwt')
@@ -69,6 +72,14 @@ export class ArticlesController {
   @ApiOkResponse({ type: ArticleDto })
   findPublishedBySlug(@Param('slug') slug: string) {
     return this.articlesService.findPublishedBySlug(slug);
+  }
+
+  @Get('public/withdrawn/slug/:slug')
+  @Public()
+  @ApiOperation({ summary: 'Get a public withdrawal notice without exposing article content' })
+  @ApiOkResponse({ type: WithdrawalNoticeDto })
+  findWithdrawalBySlug(@Param('slug') slug: string) {
+    return this.articlesService.findWithdrawalBySlug(slug);
   }
 
   @Get(':id/preview')
@@ -168,9 +179,10 @@ export class ArticlesController {
   @ApiOkResponse({ type: ArticleDto })
   approve(
     @Param('id') id: string,
+    @Body() input: ApproveArticleDto,
     @CurrentUser() user: User,
   ) {
-    return this.articlesService.approve(id, user);
+    return this.articlesService.approve(id, user, input?.comment?.trim());
   }
 
   @Post(':id/reject')
@@ -188,7 +200,7 @@ export class ArticlesController {
 
   @Post(':id/publish')
   @HttpCode(200)
-  @Permissions('articles.publish')
+  @Permissions('articles.withdraw')
   @ApiOperation({ summary: 'Publish approved article' })
   @ApiOkResponse({ type: ArticleDto })
   publish(
@@ -203,8 +215,8 @@ export class ArticlesController {
   @Permissions('articles.publish')
   @ApiOperation({ summary: 'Withdraw a publicly visible article' })
   @ApiOkResponse({ type: ArticleDto })
-  withdraw(@Param('id') id: string, @CurrentUser() user: User) {
-    return this.articlesService.withdraw(id, user);
+  withdraw(@Param('id') id: string, @Body() input: WithdrawArticleDto, @CurrentUser() user: User) {
+    return this.articlesService.withdraw(id, user, input.reason.trim());
   }
 
   @Delete(':id')

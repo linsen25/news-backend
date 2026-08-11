@@ -217,6 +217,8 @@ export class ArticlesRepository {
       publishedAt?: Date | null;
       publishedSnapshot?: Article | null;
       publishedSlug?: string | null;
+      withdrawalReason?: string | null;
+      withdrawnAt?: Date | null;
       mediaUrls?: string[];
       expectedUpdatedAt?: Date;
       audit: { userId: string; description: string };
@@ -265,6 +267,8 @@ export class ArticlesRepository {
             ? Prisma.JsonNull
             : input.publishedSnapshot as unknown as Prisma.InputJsonValue | undefined,
           publishedSlug: input.publishedSlug,
+          withdrawalReason: input.withdrawalReason,
+          withdrawnAt: input.withdrawnAt,
           tags: input.tagIds
             ? { create: input.tagIds.map((tagId) => ({ tagId })) }
             : undefined,
@@ -283,6 +287,29 @@ export class ArticlesRepository {
           description: input.audit.description,
         },
       });
+      await tx.articleRevision.create({
+        data: {
+          id: randomUUID(),
+          articleId: article.id,
+          editorId: input.currentEditorId,
+          note: '保存草稿',
+          contentSnapshot: article.content as Prisma.InputJsonValue,
+          articleSnapshot: {
+            title: article.title,
+            slug: article.slug,
+            summary: article.summary,
+            metaTitle: article.metaTitle,
+            metaDescription: article.metaDescription,
+            keywords: article.keywords,
+            content: article.content,
+            coverImage: article.coverImage,
+            byline: article.byline,
+            articleDate: article.articleDate.toISOString(),
+            categoryId: article.categoryId,
+            tagIds: article.tags.map(({ tagId }) => tagId),
+          },
+        },
+      });
       return article;
     });
     return this.toDomain(row);
@@ -290,6 +317,13 @@ export class ArticlesRepository {
 
   async delete(id: string): Promise<void> {
     await this.prisma.article.delete({ where: { id } });
+  }
+
+  async findWithdrawalBySlug(slug: string) {
+    return this.prisma.article.findFirst({
+      where: { status: 'WITHDRAWN', OR: [{ slug }, { publishedSlug: slug }] },
+      select: { title: true, slug: true, publishedSlug: true, withdrawalReason: true, withdrawnAt: true },
+    });
   }
 
   private toDomain(row: NonNullable<ArticleRecord>): Article {

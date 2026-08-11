@@ -28,6 +28,8 @@ export class ArticleWorkflowRepository {
     publishedAt?: Date;
     publishedSnapshot?: Article;
     publishedSlug?: string;
+    withdrawalReason?: string;
+    withdrawnAt?: Date;
   }): Promise<Article> {
     await this.prisma.$transaction(async (tx) => {
       const result = await tx.article.updateMany({
@@ -45,6 +47,8 @@ export class ArticleWorkflowRepository {
             publishedSnapshot: input.publishedSnapshot as unknown as Prisma.InputJsonValue,
             publishedSlug: input.publishedSlug,
           } : {}),
+          withdrawalReason: input.status === 'published' ? null : input.withdrawalReason,
+          withdrawnAt: input.status === 'published' ? null : input.withdrawnAt,
         },
       });
       if (result.count !== 1) {
@@ -57,6 +61,7 @@ export class ArticleWorkflowRepository {
           editorId: input.actor.id,
           note: input.revisionNote,
           contentSnapshot: input.article.content as object,
+          articleSnapshot: input.article as unknown as Prisma.InputJsonValue,
         },
       });
       if (input.reviewComment) {

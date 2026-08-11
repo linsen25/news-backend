@@ -15,6 +15,7 @@ export type PermissionKey =
   | 'articles.review.view'
   | 'articles.review.decide'
   | 'articles.publish'
+  | 'articles.withdraw'
   | 'media.view'
   | 'media.upload'
   | 'media.delete'
@@ -103,6 +104,7 @@ export interface ArticleRevision {
   editorId: string;
   note: string;
   contentSnapshot: TipTapDocument;
+  articleSnapshot?: Record<string, unknown> | null;
   createdAt: string;
 }
 

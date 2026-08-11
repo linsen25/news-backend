@@ -480,6 +480,43 @@
         ]
       }
     },
+    "/api/articles/public/withdrawn/slug/{slug}": {
+      "get": {
+        "operationId": "ArticlesController_findWithdrawalBySlug",
+        "parameters": [
+          {
+            "name": "slug",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WithdrawalNoticeDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "jwt": []
+          }
+        ],
+        "summary": "Get a public withdrawal notice without exposing article content",
+        "tags": [
+          "Articles",
+          "Review"
+        ]
+      }
+    },
     "/api/articles/{id}/preview": {
       "get": {
         "operationId": "ArticlesController_preview",
@@ -748,6 +785,16 @@
             }
           }
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApproveArticleDto"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "",
@@ -869,6 +916,16 @@
             }
           }
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WithdrawArticleDto"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "",
@@ -1931,6 +1988,30 @@
           "limit"
         ]
       },
+      "WithdrawalNoticeDto": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "withdrawnAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "title",
+          "slug",
+          "reason",
+          "withdrawnAt"
+        ]
+      },
       "ReviewCommentDto": {
         "type": "object",
         "properties": {
@@ -2069,6 +2150,7 @@
         },
         "required": [
           "title",
+          "articleDate",
           "authorId",
           "categoryId",
           "tagIds"
@@ -2165,6 +2247,16 @@
           }
         }
       },
+      "ApproveArticleDto": {
+        "type": "object",
+        "properties": {
+          "comment": {
+            "type": "string",
+            "example": "已核对来源，同意发布。",
+            "minLength": 2
+          }
+        }
+      },
       "RejectArticleDto": {
         "type": "object",
         "properties": {
@@ -2176,6 +2268,19 @@
         },
         "required": [
           "comment"
+        ]
+      },
+      "WithdrawArticleDto": {
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": "string",
+            "example": "部分事实需要进一步核实。",
+            "minLength": 2
+          }
+        },
+        "required": [
+          "reason"
         ]
       },
       "CreateCategoryDto": {

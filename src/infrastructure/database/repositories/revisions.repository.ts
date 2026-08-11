@@ -17,6 +17,7 @@ export class RevisionsRepository {
       editorId: row.editorId,
       note: row.note,
       contentSnapshot: row.contentSnapshot as unknown as TipTapDocument,
+      articleSnapshot: row.articleSnapshot as Record<string, unknown> | null,
       createdAt: row.createdAt.toISOString(),
     }));
   }
