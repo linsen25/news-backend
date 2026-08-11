@@ -51,16 +51,18 @@ async function seed() {
         name: user.name,
         email: user.email,
         passwordHash: user.passwordHash,
-        roleId: user.roleId,
       },
       create: {
         id: user.id,
         name: user.name,
         email: user.email,
         passwordHash: user.passwordHash,
-        roleId: user.roleId,
         createdAt: new Date(user.createdAt),
       },
+    });
+    await prisma.userRole.deleteMany({ where: { userId: user.id } });
+    await prisma.userRole.createMany({
+      data: user.roleIds.map((roleId) => ({ userId: user.id, roleId })),
     });
   }
 

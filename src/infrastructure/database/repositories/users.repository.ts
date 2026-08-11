@@ -2,10 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { PermissionKey, User } from '../../../common/types/domain';
 import { PrismaService } from '../prisma.service';
 
-const includeRole = {
-  role: {
+const includeRoles = {
+  roles: {
     include: {
-      permissions: { include: { permission: true } },
+      role: { include: { permissions: { include: { permission: true } } } },
     },
   },
 } as const;
@@ -15,53 +15,58 @@ export class UsersRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   async findDomainById(id: string): Promise<User | null> {
-    const user = await this.prisma.user.findUnique({
-      where: { id },
-      include: includeRole,
-    });
+    const user = await this.prisma.user.findUnique({ where: { id }, include: includeRoles });
     return user ? this.toDomain(user) : null;
   }
 
   async findDomainByEmail(email: string): Promise<User | null> {
-    const user = await this.prisma.user.findUnique({
-      where: { email },
-      include: includeRole,
-    });
+    const user = await this.prisma.user.findUnique({ where: { email }, include: includeRoles });
     return user ? this.toDomain(user) : null;
   }
 
-  findAllWithRole() {
-    return this.prisma.user.findMany({
-      include: includeRole,
-      orderBy: { createdAt: 'asc' },
-    });
+  findAllWithRoles() {
+    return this.prisma.user.findMany({ include: includeRoles, orderBy: { createdAt: 'asc' } });
   }
 
   findRoles() {
     return this.prisma.role.findMany({
-      include: {
-        permissions: { include: { permission: true } },
-      },
+      include: { permissions: { include: { permission: true } } },
       orderBy: { createdAt: 'asc' },
     });
   }
 
   findPermissions() {
-    return this.prisma.permission.findMany({
-      orderBy: [{ module: 'asc' }, { key: 'asc' }],
+    return this.prisma.permission.findMany({ orderBy: [{ module: 'asc' }, { key: 'asc' }] });
+  }
+
+  async replaceRoles(userId: string, roleIds: string[]) {
+    return this.prisma.$transaction(async (tx) => {
+      await tx.userRole.deleteMany({ where: { userId } });
+      await tx.userRole.createMany({ data: roleIds.map((roleId) => ({ userId, roleId })) });
+      return tx.user.findUniqueOrThrow({ where: { id: userId }, include: includeRoles });
     });
   }
 
-  private toDomain(user: Awaited<ReturnType<UsersRepository['findAllWithRole']>>[number]): User {
+  countUsersWithRole(roleId: string) {
+    return this.prisma.userRole.count({ where: { roleId } });
+  }
+
+  findByIdWithRoles(id: string) {
+    return this.prisma.user.findUnique({ where: { id }, include: includeRoles });
+  }
+
+  private toDomain(user: Awaited<ReturnType<UsersRepository['findAllWithRoles']>>[number]): User {
+    const permissions = new Set<PermissionKey>();
+    for (const { role } of user.roles) {
+      for (const { permission } of role.permissions) permissions.add(permission.key as PermissionKey);
+    }
     return {
       id: user.id,
       name: user.name,
       email: user.email,
       passwordHash: user.passwordHash,
-      roleId: user.roleId as User['roleId'],
-      permissions: user.role.permissions.map(
-        ({ permission }) => permission.key as PermissionKey,
-      ),
+      roleIds: user.roles.map(({ roleId }) => roleId as User['roleIds'][number]),
+      permissions: [...permissions],
       avatarUrl: user.avatarUrl ?? undefined,
       createdAt: user.createdAt.toISOString(),
     };

@@ -46,7 +46,7 @@ describe('Prisma repositories (integration)', () => {
 
   it('loads a user with role permissions', async () => {
     const author = await users.findDomainByEmail('author@example.com');
-    expect(author?.roleId).toBe('role-author');
+    expect(author?.roleIds).toContain('role-author');
     expect(author?.permissions).toContain('articles.create');
     expect(author?.passwordHash).toMatch(/^\$2[aby]\$/);
   });

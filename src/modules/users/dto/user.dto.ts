@@ -12,8 +12,8 @@ export class UserDto {
   @ApiProperty({ example: 'author@example.com' })
   email!: string;
 
-  @ApiProperty({ type: RoleDto })
-  role!: RoleDto;
+  @ApiProperty({ type: [RoleDto] })
+  roles!: RoleDto[];
 
   @ApiProperty({ type: [PermissionDto] })
   permissions!: PermissionDto[];

@@ -14,13 +14,16 @@ export type PermissionKey =
   | 'articles.review.view'
   | 'articles.review.decide'
   | 'articles.publish'
+  | 'media.view'
+  | 'media.upload'
+  | 'media.delete'
   | 'users.view'
   | 'users.permissions.manage';
 
 export interface Permission {
   id: string;
   key: PermissionKey;
-  module: 'articles.edit' | 'articles.review' | 'accounts.manage';
+  module: 'articles.edit' | 'articles.review' | 'media.manage' | 'accounts.manage';
   name: string;
 }
 
@@ -35,7 +38,7 @@ export interface User {
   name: string;
   email: string;
   passwordHash: string;
-  roleId: Role['id'];
+  roleIds: Role['id'][];
   permissions: PermissionKey[];
   avatarUrl?: string;
   createdAt: string;

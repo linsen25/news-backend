@@ -1,5 +1,25 @@
 # news-backend
 
+## Multi-role authorization
+
+Users have display names and can be assigned more than one role through the
+`user_roles` join table. Effective permissions are the union of every assigned
+role. For example, one person can be both `Author` and `Reviewer`; `Admin`
+grants the complete management set. `PUT /api/users/:id/roles` replaces a
+user's role assignments and prevents removal of the final administrator.
+
+All roles can view the review center, media library, and account directory.
+Write operations remain protected by granular permissions such as
+`articles.review.decide`, `media.upload`, `media.delete`, and
+`users.permissions.manage`.
+
+Deploy the database migration before starting the new application version:
+
+```bash
+npx prisma migrate deploy
+npm run db:seed
+```
+
 NestJS 新闻 API。当前使用 PostgreSQL + Prisma Repository 持久化数据；`src/mock` 仅保留为开发 Seed fixtures。User → Role → Permission、资源归属及 `draft → review → approved/rejected → published` 状态流保持不变。
 
 ```bash

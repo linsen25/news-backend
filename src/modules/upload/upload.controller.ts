@@ -29,12 +29,12 @@ import { UploadService } from './upload.service';
 
 @ApiTags('Upload')
 @ApiBearerAuth('jwt')
-@Permissions('articles.create')
 @Controller('upload')
 export class UploadController {
   constructor(private readonly upload: UploadService) {}
 
   @Post('images')
+  @Permissions('media.upload')
   @UseInterceptors(FileInterceptor('file', { limits: { fileSize: 10_000_000 } }))
   @ApiConsumes('multipart/form-data')
   @ApiBody({
@@ -61,12 +61,14 @@ export class UploadController {
   }
 
   @Get('media')
+  @Permissions('media.view')
   @ApiOkResponse({ type: [MediaAssetDto] })
   findAll() {
     return this.upload.findAll();
   }
 
   @Delete('media/:id')
+  @Permissions('media.delete')
   @HttpCode(204)
   @ApiNoContentResponse()
   deleteImage(@Param('id') id: string, @CurrentUser() user: User) {

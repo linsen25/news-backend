@@ -20,4 +20,16 @@ export class CatalogRepository {
   findTag(id: string) {
     return this.prisma.tag.findUnique({ where: { id } });
   }
+
+  createTag(input: { name: string; slug: string }) {
+    return this.prisma.tag.create({ data: input });
+  }
+
+  updateTag(id: string, input: { name?: string; slug?: string }) {
+    return this.prisma.tag.update({ where: { id }, data: input });
+  }
+
+  async deleteTag(id: string): Promise<void> {
+    await this.prisma.tag.delete({ where: { id } });
+  }
 }

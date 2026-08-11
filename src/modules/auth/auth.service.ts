@@ -16,41 +16,25 @@ export class AuthService {
 
   async login(input: LoginDto) {
     const user = await this.users.findDomainByEmail(input.email);
-    if (
-      !user ||
-      !(await this.passwords.verify(input.password, user.passwordHash))
-    ) {
+    if (!user || !(await this.passwords.verify(input.password, user.passwordHash))) {
       throw new UnauthorizedException('Email or password is incorrect');
     }
-
-    const role = (await this.users.findRoles()).find(
-      (item) => item.id === user.roleId,
-    );
-    const permissions =
-      role?.permissions.map(({ permission }) => ({
-        key: permission.key,
-        module: permission.module,
-        description: permission.description,
-      })) ?? [];
+    const allRoles = await this.users.findRoles();
+    const roles = allRoles.filter((role) => user.roleIds.includes(role.id as never)).map((role) => ({
+      id: role.id,
+      name: role.name,
+      permissions: role.permissions.map(({ permission }) => ({
+        key: permission.key, module: permission.module, description: permission.description,
+      })),
+    }));
+    const permissions = Array.from(new Map(
+      roles.flatMap((role) => role.permissions).map((permission) => [permission.key, permission]),
+    ).values());
 
     await this.audit.record(user, 'LOGIN', `${user.name} 登录后台`);
     return {
-      accessToken: await this.jwt.signAsync({
-        sub: user.id,
-        email: user.email,
-        roleId: user.roleId,
-      }),
-      user: {
-        id: user.id,
-        username: user.name,
-        email: user.email,
-        role: role && {
-          id: role.id,
-          name: role.name,
-          permissions,
-        },
-        permissions,
-      },
+      accessToken: await this.jwt.signAsync({ sub: user.id, email: user.email }),
+      user: { id: user.id, username: user.name, email: user.email, roles, permissions },
     };
   }
 }

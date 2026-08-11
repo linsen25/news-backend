@@ -7,6 +7,217 @@ datasource db {
   provider = "postgresql"
 }
 
+model User {
+  id               String            @id @default(cuid())
+  name             String
+  email            String            @unique
+  passwordHash     String            @map("password_hash")
+  avatarUrl        String?           @map("avatar_url")
+  createdAt        DateTime          @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt        DateTime          @updatedAt @map("updated_at") @db.Timestamptz(3)
+  revisions        ArticleRevision[]
+  authoredArticles Article[]         @relation("ArticleAuthor")
+  editedArticles   Article[]         @relation("ArticleCurrentEditor")
+  auditLogs        AuditLog[]
+  mediaAssets      MediaAsset[]
+  reviewComments   ReviewComment[]
+  roles            UserRole[]
+
+  @@map("users")
+}
+
+model Role {
+  id          String           @id @default(cuid())
+  name        String           @unique
+  description String?
+  createdAt   DateTime         @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt   DateTime         @updatedAt @map("updated_at") @db.Timestamptz(3)
+  permissions RolePermission[]
+  users       UserRole[]
+
+  @@map("roles")
+}
+
+model Permission {
+  id          String           @id @default(cuid())
+  key         String           @unique
+  module      String
+  description String
+  createdAt   DateTime         @default(now()) @map("created_at") @db.Timestamptz(3)
+  roles       RolePermission[]
+
+  @@index([module])
+  @@map("permissions")
+}
+
+model RolePermission {
+  roleId       String     @map("role_id")
+  permissionId String     @map("permission_id")
+  createdAt    DateTime   @default(now()) @map("created_at") @db.Timestamptz(3)
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+  role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@id([roleId, permissionId])
+  @@index([permissionId])
+  @@map("role_permissions")
+}
+
+model UserRole {
+  userId    String   @map("user_id")
+  roleId    String   @map("role_id")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role      Role     @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@id([userId, roleId])
+  @@index([roleId])
+  @@map("user_roles")
+}
+
+model Category {
+  id        String     @id @default(cuid())
+  name      String
+  slug      String     @unique
+  parentId  String?    @map("parent_id")
+  createdAt DateTime   @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt DateTime   @updatedAt @map("updated_at") @db.Timestamptz(3)
+  articles  Article[]
+  parent    Category?  @relation("CategoryTree", fields: [parentId], references: [id])
+  children  Category[] @relation("CategoryTree")
+
+  @@index([parentId])
+  @@map("categories")
+}
+
+model Tag {
+  id        String       @id @default(cuid())
+  name      String       @unique
+  slug      String       @unique
+  createdAt DateTime     @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt DateTime     @updatedAt @map("updated_at") @db.Timestamptz(3)
+  articles  ArticleTag[]
+
+  @@map("tags")
+}
+
+model Article {
+  id              String            @id @default(cuid())
+  title           String
+  slug            String            @unique
+  summary         String            @default("")
+  content         Json
+  coverImage      String            @default("") @map("cover_image")
+  status          ArticleStatus     @default(DRAFT)
+  authorId        String            @map("author_id")
+  currentEditorId String            @map("current_editor_id")
+  categoryId      String            @map("category_id")
+  createdAt       DateTime          @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt       DateTime          @updatedAt @map("updated_at") @db.Timestamptz(3)
+  publishedAt     DateTime?         @map("published_at") @db.Timestamptz(3)
+  keywords        String[]          @default([])
+  metaDescription String            @default("") @map("meta_description")
+  metaTitle       String            @default("") @map("meta_title")
+  mediaAssets     ArticleMedia[]
+  revisions       ArticleRevision[]
+  tags            ArticleTag[]
+  author          User              @relation("ArticleAuthor", fields: [authorId], references: [id])
+  category        Category          @relation(fields: [categoryId], references: [id])
+  currentEditor   User              @relation("ArticleCurrentEditor", fields: [currentEditorId], references: [id])
+  auditLogs       AuditLog[]
+  reviewComments  ReviewComment[]
+
+  @@index([authorId])
+  @@index([currentEditorId])
+  @@index([categoryId])
+  @@index([status, publishedAt])
+  @@map("articles")
+}
+
+model ArticleTag {
+  articleId String   @map("article_id")
+  tagId     String   @map("tag_id")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  article   Article  @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  tag       Tag      @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([articleId, tagId])
+  @@index([tagId])
+  @@map("article_tags")
+}
+
+model ArticleRevision {
+  id              String   @id @default(cuid())
+  articleId       String   @map("article_id")
+  editorId        String   @map("editor_id")
+  note            String   @default("")
+  contentSnapshot Json     @map("content_snapshot")
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  article         Article  @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  editor          User     @relation(fields: [editorId], references: [id])
+
+  @@index([articleId, createdAt])
+  @@index([editorId])
+  @@map("article_revisions")
+}
+
+model AuditLog {
+  id          String      @id @default(cuid())
+  userId      String      @map("user_id")
+  action      AuditAction
+  articleId   String?     @map("article_id")
+  description String
+  createdAt   DateTime    @default(now()) @map("created_at") @db.Timestamptz(3)
+  article     Article?    @relation(fields: [articleId], references: [id])
+  user        User        @relation(fields: [userId], references: [id])
+
+  @@index([userId, createdAt])
+  @@index([articleId, createdAt])
+  @@index([action, createdAt])
+  @@map("audit_logs")
+}
+
+model ReviewComment {
+  id         String   @id @default(cuid())
+  articleId  String   @map("article_id")
+  reviewerId String   @map("reviewer_id")
+  content    String
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  article    Article  @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  reviewer   User     @relation(fields: [reviewerId], references: [id])
+
+  @@index([articleId, createdAt])
+  @@index([reviewerId])
+  @@map("review_comments")
+}
+
+model MediaAsset {
+  id           String         @id @default(cuid())
+  url          String         @unique
+  publicId     String         @unique @map("public_id")
+  filename     String
+  mimeType     String         @map("mime_type")
+  size         Int
+  uploadedById String         @map("uploaded_by")
+  createdAt    DateTime       @default(now()) @map("created_at") @db.Timestamptz(3)
+  articles     ArticleMedia[]
+  uploadedBy   User           @relation(fields: [uploadedById], references: [id])
+
+  @@index([uploadedById, createdAt])
+  @@map("media_assets")
+}
+
+model ArticleMedia {
+  articleId    String     @map("article_id")
+  mediaAssetId String     @map("media_asset_id")
+  createdAt    DateTime   @default(now()) @map("created_at") @db.Timestamptz(3)
+  article      Article    @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  mediaAsset   MediaAsset @relation(fields: [mediaAssetId], references: [id])
+
+  @@id([articleId, mediaAssetId])
+  @@index([mediaAssetId])
+  @@map("article_media")
+}
+
 enum ArticleStatus {
   DRAFT     @map("draft")
   REVIEW    @map("review")
@@ -24,209 +235,8 @@ enum AuditAction {
   APPROVE_ARTICLE
   REJECT_ARTICLE
   PUBLISH_ARTICLE
-  DELETE_ARTICLE
   LOGIN
+  DELETE_ARTICLE
 
   @@map("audit_action")
-}
-
-model User {
-  id               String            @id @default(cuid())
-  name             String
-  email            String            @unique
-  passwordHash     String            @map("password_hash")
-  avatarUrl        String?           @map("avatar_url")
-  roleId           String            @map("role_id")
-  role             Role              @relation(fields: [roleId], references: [id], onDelete: Restrict)
-  createdAt        DateTime          @default(now()) @map("created_at") @db.Timestamptz(3)
-  updatedAt        DateTime          @updatedAt @map("updated_at") @db.Timestamptz(3)
-  authoredArticles Article[]         @relation("ArticleAuthor")
-  editedArticles   Article[]         @relation("ArticleCurrentEditor")
-  revisions        ArticleRevision[]
-  auditLogs        AuditLog[]
-  reviewComments   ReviewComment[]
-  mediaAssets      MediaAsset[]
-
-  @@index([roleId])
-  @@map("users")
-}
-
-model Role {
-  id          String           @id @default(cuid())
-  name        String           @unique
-  description String?
-  users       User[]
-  permissions RolePermission[]
-  createdAt   DateTime         @default(now()) @map("created_at") @db.Timestamptz(3)
-  updatedAt   DateTime         @updatedAt @map("updated_at") @db.Timestamptz(3)
-
-  @@map("roles")
-}
-
-model Permission {
-  id          String           @id @default(cuid())
-  key         String           @unique
-  module      String
-  description String
-  roles       RolePermission[]
-  createdAt   DateTime         @default(now()) @map("created_at") @db.Timestamptz(3)
-
-  @@index([module])
-  @@map("permissions")
-}
-
-model RolePermission {
-  roleId       String     @map("role_id")
-  permissionId String     @map("permission_id")
-  role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
-  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
-  createdAt    DateTime   @default(now()) @map("created_at") @db.Timestamptz(3)
-
-  @@id([roleId, permissionId])
-  @@index([permissionId])
-  @@map("role_permissions")
-}
-
-model Category {
-  id        String     @id @default(cuid())
-  name      String
-  slug      String     @unique
-  parentId  String?    @map("parent_id")
-  parent    Category?  @relation("CategoryTree", fields: [parentId], references: [id], onDelete: SetNull)
-  children  Category[] @relation("CategoryTree")
-  articles  Article[]
-  createdAt DateTime   @default(now()) @map("created_at") @db.Timestamptz(3)
-  updatedAt DateTime   @updatedAt @map("updated_at") @db.Timestamptz(3)
-
-  @@index([parentId])
-  @@map("categories")
-}
-
-model Tag {
-  id        String       @id @default(cuid())
-  name      String       @unique
-  slug      String       @unique
-  articles  ArticleTag[]
-  createdAt DateTime     @default(now()) @map("created_at") @db.Timestamptz(3)
-  updatedAt DateTime     @updatedAt @map("updated_at") @db.Timestamptz(3)
-
-  @@map("tags")
-}
-
-model Article {
-  id              String            @id @default(cuid())
-  title           String
-  slug            String            @unique
-  summary         String            @default("")
-  metaTitle       String            @default("") @map("meta_title")
-  metaDescription String            @default("") @map("meta_description")
-  keywords        String[]          @default([])
-  content         Json              @db.JsonB
-  coverImage      String            @default("") @map("cover_image")
-  status          ArticleStatus     @default(DRAFT)
-  authorId        String            @map("author_id")
-  author          User              @relation("ArticleAuthor", fields: [authorId], references: [id], onDelete: Restrict)
-  currentEditorId String            @map("current_editor_id")
-  currentEditor   User              @relation("ArticleCurrentEditor", fields: [currentEditorId], references: [id], onDelete: Restrict)
-  categoryId      String            @map("category_id")
-  category        Category          @relation(fields: [categoryId], references: [id], onDelete: Restrict)
-  tags            ArticleTag[]
-  revisions       ArticleRevision[]
-  auditLogs       AuditLog[]
-  reviewComments  ReviewComment[]
-  mediaAssets     ArticleMedia[]
-  createdAt       DateTime          @default(now()) @map("created_at") @db.Timestamptz(3)
-  updatedAt       DateTime          @updatedAt @map("updated_at") @db.Timestamptz(3)
-  publishedAt     DateTime?         @map("published_at") @db.Timestamptz(3)
-
-  @@index([authorId])
-  @@index([currentEditorId])
-  @@index([categoryId])
-  @@index([status, publishedAt])
-  @@map("articles")
-}
-
-model ArticleTag {
-  articleId String   @map("article_id")
-  tagId     String   @map("tag_id")
-  article   Article  @relation(fields: [articleId], references: [id], onDelete: Cascade)
-  tag       Tag      @relation(fields: [tagId], references: [id], onDelete: Cascade)
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
-
-  @@id([articleId, tagId])
-  @@index([tagId])
-  @@map("article_tags")
-}
-
-model ArticleRevision {
-  id              String   @id @default(cuid())
-  articleId       String   @map("article_id")
-  article         Article  @relation(fields: [articleId], references: [id], onDelete: Cascade)
-  editorId        String   @map("editor_id")
-  editor          User     @relation(fields: [editorId], references: [id], onDelete: Restrict)
-  note            String   @default("")
-  contentSnapshot Json     @map("content_snapshot") @db.JsonB
-  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
-
-  @@index([articleId, createdAt])
-  @@index([editorId])
-  @@map("article_revisions")
-}
-
-model AuditLog {
-  id          String      @id @default(cuid())
-  userId      String      @map("user_id")
-  user        User        @relation(fields: [userId], references: [id], onDelete: Restrict)
-  action      AuditAction
-  articleId   String?     @map("article_id")
-  article     Article?    @relation(fields: [articleId], references: [id], onDelete: SetNull)
-  description String
-  createdAt   DateTime    @default(now()) @map("created_at") @db.Timestamptz(3)
-
-  @@index([userId, createdAt])
-  @@index([articleId, createdAt])
-  @@index([action, createdAt])
-  @@map("audit_logs")
-}
-
-model ReviewComment {
-  id         String   @id @default(cuid())
-  articleId  String   @map("article_id")
-  article    Article  @relation(fields: [articleId], references: [id], onDelete: Cascade)
-  reviewerId String   @map("reviewer_id")
-  reviewer   User     @relation(fields: [reviewerId], references: [id], onDelete: Restrict)
-  content    String
-  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
-
-  @@index([articleId, createdAt])
-  @@index([reviewerId])
-  @@map("review_comments")
-}
-
-model MediaAsset {
-  id           String         @id @default(cuid())
-  url          String         @unique
-  publicId     String         @unique @map("public_id")
-  filename     String
-  mimeType     String         @map("mime_type")
-  size         Int
-  uploadedById String         @map("uploaded_by")
-  uploadedBy   User           @relation(fields: [uploadedById], references: [id], onDelete: Restrict)
-  articles     ArticleMedia[]
-  createdAt    DateTime       @default(now()) @map("created_at") @db.Timestamptz(3)
-
-  @@index([uploadedById, createdAt])
-  @@map("media_assets")
-}
-
-model ArticleMedia {
-  articleId    String     @map("article_id")
-  mediaAssetId String     @map("media_asset_id")
-  article      Article    @relation(fields: [articleId], references: [id], onDelete: Cascade)
-  mediaAsset   MediaAsset @relation(fields: [mediaAssetId], references: [id], onDelete: Restrict)
-  createdAt    DateTime   @default(now()) @map("created_at") @db.Timestamptz(3)
-
-  @@id([articleId, mediaAssetId])
-  @@index([mediaAssetId])
-  @@map("article_media")
 }
