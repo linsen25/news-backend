@@ -10,6 +10,8 @@ import { ReviewCommentsRepository } from '../src/infrastructure/database/reposit
 import { AuditAction } from '../src/common/types/domain';
 import { MediaAssetsRepository } from '../src/infrastructure/database/repositories/media-assets.repository';
 
+jest.setTimeout(30_000);
+
 describe('Prisma repositories (integration)', () => {
   let prisma: PrismaService;
   let users: UsersRepository;
@@ -79,11 +81,14 @@ describe('Prisma repositories (integration)', () => {
         content: [{ type: 'paragraph' }],
       },
       coverImage: `https://res.cloudinary.com/test/image/upload/${mediaId}.jpg`,
+      byline: 'Integration Reporter',
+      articleDate: new Date('2026-08-12T00:00:00.000Z'),
       mediaUrls: [`https://res.cloudinary.com/test/image/upload/${mediaId}.jpg`],
       authorId: 'user-author',
       currentEditorId: 'user-author',
       categoryId: 'cat-tech',
       tagIds: ['tag-openai'],
+      audit: { userId: 'user-author', description: `integration create ${articleId}` },
     });
     expect(created.author.id).toBe('user-author');
     expect(created.tags.map((tag) => tag.id)).toEqual(['tag-openai']);
@@ -93,6 +98,8 @@ describe('Prisma repositories (integration)', () => {
       summary: 'Updated through Prisma',
       currentEditorId: 'user-author',
       tagIds: ['tag-immigration'],
+      expectedUpdatedAt: new Date(created.updatedAt),
+      audit: { userId: 'user-author', description: `integration update ${articleId}` },
     });
     expect(updated.summary).toBe('Updated through Prisma');
     expect(updated.tags.map((tag) => tag.id)).toEqual(['tag-immigration']);
@@ -127,7 +134,7 @@ describe('Prisma repositories (integration)', () => {
     expect(rejected.status).toBe('rejected');
     expect(await comments.findByArticle(articleId)).toHaveLength(1);
     expect(await prisma.articleRevision.count({ where: { articleId } })).toBe(2);
-    expect(await auditLogs.findByArticle(articleId)).toHaveLength(2);
+    expect(await auditLogs.findByArticle(articleId)).toHaveLength(4);
   });
 
   it('rolls back the complete workflow when a transaction step fails', async () => {

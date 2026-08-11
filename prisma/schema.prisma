@@ -105,32 +105,34 @@ model Tag {
 }
 
 model Article {
-  id              String            @id @default(cuid())
-  title           String
-  slug            String            @unique
-  summary         String            @default("")
-  content         Json
-  coverImage      String            @default("") @map("cover_image")
-  status          ArticleStatus     @default(DRAFT)
-  byline          String            @default("")
-  articleDate     DateTime          @default(now()) @map("article_date") @db.Timestamptz(3)
-  authorId        String            @map("author_id")
-  currentEditorId String            @map("current_editor_id")
-  categoryId      String            @map("category_id")
-  createdAt       DateTime          @default(now()) @map("created_at") @db.Timestamptz(3)
-  updatedAt       DateTime          @updatedAt @map("updated_at") @db.Timestamptz(3)
-  publishedAt     DateTime?         @map("published_at") @db.Timestamptz(3)
-  keywords        String[]          @default([])
-  metaDescription String            @default("") @map("meta_description")
-  metaTitle       String            @default("") @map("meta_title")
-  mediaAssets     ArticleMedia[]
-  revisions       ArticleRevision[]
-  tags            ArticleTag[]
-  author          User              @relation("ArticleAuthor", fields: [authorId], references: [id])
-  category        Category          @relation(fields: [categoryId], references: [id])
-  currentEditor   User              @relation("ArticleCurrentEditor", fields: [currentEditorId], references: [id])
-  auditLogs       AuditLog[]
-  reviewComments  ReviewComment[]
+  id                String            @id @default(cuid())
+  title             String
+  slug              String            @unique
+  summary           String            @default("")
+  content           Json
+  coverImage        String            @default("") @map("cover_image")
+  status            ArticleStatus     @default(DRAFT)
+  byline            String            @default("")
+  articleDate       DateTime          @default(now()) @map("article_date") @db.Timestamptz(3)
+  authorId          String            @map("author_id")
+  currentEditorId   String            @map("current_editor_id")
+  categoryId        String            @map("category_id")
+  createdAt         DateTime          @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt         DateTime          @updatedAt @map("updated_at") @db.Timestamptz(3)
+  publishedAt       DateTime?         @map("published_at") @db.Timestamptz(3)
+  publishedSnapshot Json?             @map("published_snapshot")
+  publishedSlug     String?           @unique @map("published_slug")
+  keywords          String[]          @default([])
+  metaDescription   String            @default("") @map("meta_description")
+  metaTitle         String            @default("") @map("meta_title")
+  mediaAssets       ArticleMedia[]
+  revisions         ArticleRevision[]
+  tags              ArticleTag[]
+  author            User              @relation("ArticleAuthor", fields: [authorId], references: [id])
+  category          Category          @relation(fields: [categoryId], references: [id])
+  currentEditor     User              @relation("ArticleCurrentEditor", fields: [currentEditorId], references: [id])
+  auditLogs         AuditLog[]
+  reviewComments    ReviewComment[]
 
   @@index([authorId])
   @@index([currentEditorId])

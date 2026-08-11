@@ -43,8 +43,9 @@ export class ArticlesService {
       limit: query.limit,
       status: query.status,
       categoryId: query.categoryId,
+      search: query.search?.trim() || undefined,
       authorId: !isAdmin && !isReviewer ? actor.id : undefined,
-      reviewOnly: isReviewer && !query.status,
+      reviewOnly: Boolean(query.reviewQueue) || (isReviewer && !query.status),
     });
     return {
       items: result.items,
@@ -89,14 +90,11 @@ export class ArticlesService {
         input.content ?? { type: 'doc', content: [{ type: 'paragraph' }] },
         input.coverImage ?? '',
       ),
+      audit: {
+        userId: actor.id,
+        description: `创建文章《${input.title}》`,
+      },
     });
-    await this.audit.record(
-      actor,
-      'CREATE_ARTICLE',
-      `创建文章《${article.title}》`,
-      article.id,
-      article.title,
-    );
     return article;
   }
 
@@ -137,19 +135,20 @@ export class ArticlesService {
       categoryId: input.categoryId,
       tagIds: input.tagIds,
       status: 'draft',
-      publishedAt: article.status === 'published' ? null : undefined,
+      publishedSnapshot: article.status === 'published' ? article : undefined,
+      publishedSlug: article.status === 'published' ? article.slug : undefined,
+      expectedUpdatedAt: input.expectedUpdatedAt
+        ? new Date(input.expectedUpdatedAt)
+        : undefined,
       mediaUrls: this.extractMediaUrls(
         input.content ?? article.content,
         input.coverImage ?? article.coverImage,
       ),
+      audit: {
+        userId: actor.id,
+        description: `修改文章《${input.title ?? article.title}》`,
+      },
     });
-    await this.audit.record(
-      actor,
-      'UPDATE_ARTICLE',
-      `修改文章《${updated.title}》`,
-      updated.id,
-      updated.title,
-    );
     return updated;
   }
 
@@ -192,7 +191,7 @@ export class ArticlesService {
     comment: string,
   ): Promise<Article> {
     const article = await this.findOne(id, actor);
-    this.requireTransition(article.status, ['review'], 'rejected');
+    this.requireTransition(article.status, ['review', 'approved'], 'rejected');
     return this.workflow.transition({
       article,
       actor,
@@ -228,22 +227,20 @@ export class ArticlesService {
   }
 
   async findPublished(): Promise<Article[]> {
-    return (await this.articles.findAll()).filter(
-      (article) => article.status === 'published',
-    );
+    return this.articles.findPublished();
   }
 
   async findPublishedOne(id: string): Promise<Article> {
-    const article = await this.findOne(id);
-    if (article.status !== 'published') {
+    const article = await this.articles.findPublishedById(id);
+    if (!article) {
       throw new NotFoundException(`Published article ${id} not found`);
     }
     return article;
   }
 
   async findPublishedBySlug(slug: string): Promise<Article> {
-    const article = await this.articles.findBySlug(slug);
-    if (!article || article.status !== 'published') {
+    const article = await this.articles.findPublishedBySlug(slug);
+    if (!article) {
       throw new NotFoundException(`Published article ${slug} not found`);
     }
     return article;

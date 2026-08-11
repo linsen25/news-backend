@@ -72,4 +72,7 @@ export class ArticleDto {
 
   @ApiProperty({ type: String, format: 'date-time', nullable: true })
   publishedAt!: string | null;
+
+  @ApiProperty({ description: '编辑中的文章是否仍有一个旧版本在线展示' })
+  hasPublishedVersion!: boolean;
 }

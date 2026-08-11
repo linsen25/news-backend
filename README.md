@@ -201,3 +201,20 @@ npm run db:deploy
 production browser origins as a comma-separated `CORS_ORIGINS` value. When the
 variable is absent, localhost ports 3000 and 3002 remain allowed for local
 development.
+
+# Production editorial safeguards
+
+- `review` and `approved` articles can be rejected with a required comment.
+- Admins can submit any managed draft; authors can submit only their own work.
+- Editing published content stores the live representation in
+  `published_snapshot` and its route in `published_slug`. Public APIs keep
+  serving that snapshot while the new draft is reviewed, then replace it when
+  the new version is published.
+- Preview URLs use an article-bound JWT with a 15-minute lifetime, created by
+  `POST /api/articles/:id/preview-token`.
+- Create/update writes and their Audit Log entries share one Prisma
+  transaction. Workflow transitions also guard the expected current status.
+- Updates may include `expectedUpdatedAt`; stale saves return HTTP 409 rather
+  than overwriting another editor's work.
+- `GET /api/articles` supports server-side `page`, `limit`, `status`,
+  `categoryId`, `search`, and `reviewQueue` filtering.

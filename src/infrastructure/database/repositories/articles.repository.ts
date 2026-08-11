@@ -1,7 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { Article, ArticleStatus, TipTapDocument } from '../../../common/types/domain';
 import { PrismaService } from '../prisma.service';
 import { Prisma } from '../../../../generated/prisma/client';
+import { randomUUID } from 'node:crypto';
 
 const articleInclude = {
   author: true,
@@ -26,6 +27,47 @@ export class ArticlesRepository {
     return rows.map((row) => this.toDomain(row));
   }
 
+  async findPublished(): Promise<Article[]> {
+    const rows = await this.prisma.article.findMany({
+      where: {
+        OR: [
+          { status: 'PUBLISHED' },
+          { publishedSnapshot: { not: Prisma.JsonNull } },
+        ],
+      },
+      include: articleInclude,
+      orderBy: { publishedAt: 'desc' },
+    });
+    return rows.map((row) => this.toPublicDomain(row));
+  }
+
+  async findPublishedById(id: string): Promise<Article | null> {
+    const row = await this.prisma.article.findFirst({
+      where: {
+        id,
+        OR: [
+          { status: 'PUBLISHED' },
+          { publishedSnapshot: { not: Prisma.JsonNull } },
+        ],
+      },
+      include: articleInclude,
+    });
+    return row ? this.toPublicDomain(row) : null;
+  }
+
+  async findPublishedBySlug(slug: string): Promise<Article | null> {
+    const row = await this.prisma.article.findFirst({
+      where: {
+        OR: [
+          { status: 'PUBLISHED', slug },
+          { publishedSlug: slug },
+        ],
+      },
+      include: articleInclude,
+    });
+    return row ? this.toPublicDomain(row) : null;
+  }
+
   async findPage(input: {
     page: number;
     limit: number;
@@ -33,15 +75,27 @@ export class ArticlesRepository {
     categoryId?: string;
     authorId?: string;
     reviewOnly?: boolean;
+    search?: string;
   }): Promise<{ items: Article[]; total: number }> {
     const where: Prisma.ArticleWhereInput = {
       status: input.status
         ? (input.status.toUpperCase() as never)
         : input.reviewOnly
-          ? { in: ['REVIEW', 'APPROVED', 'REJECTED'] }
+          ? { in: ['REVIEW', 'APPROVED'] }
           : undefined,
       categoryId: input.categoryId,
       authorId: input.authorId,
+      OR: input.search
+        ? [
+            { title: { contains: input.search, mode: 'insensitive' } },
+            { summary: { contains: input.search, mode: 'insensitive' } },
+            { byline: { contains: input.search, mode: 'insensitive' } },
+            { author: { name: { contains: input.search, mode: 'insensitive' } } },
+            { currentEditor: { name: { contains: input.search, mode: 'insensitive' } } },
+            { category: { name: { contains: input.search, mode: 'insensitive' } } },
+            { tags: { some: { tag: { name: { contains: input.search, mode: 'insensitive' } } } } },
+          ]
+        : undefined,
     };
     const { rows, total } = await this.prisma.$transaction(async (tx) => {
       const rows = await tx.article.findMany({
@@ -94,13 +148,14 @@ export class ArticlesRepository {
     categoryId: string;
     tagIds: string[];
     mediaUrls: string[];
+    audit: { userId: string; description: string };
   }): Promise<Article> {
     const row = await this.prisma.$transaction(async (tx) => {
       const media = await tx.mediaAsset.findMany({
         where: { url: { in: input.mediaUrls } },
         select: { id: true },
       });
-      return tx.article.create({
+      const article = await tx.article.create({
         data: {
           id: input.id,
           title: input.title,
@@ -125,6 +180,16 @@ export class ArticlesRepository {
         },
         include: articleInclude,
       });
+      await tx.auditLog.create({
+        data: {
+          id: randomUUID(),
+          userId: input.audit.userId,
+          action: 'CREATE_ARTICLE',
+          articleId: article.id,
+          description: input.audit.description,
+        },
+      });
+      return article;
     });
     return this.toDomain(row);
   }
@@ -147,10 +212,23 @@ export class ArticlesRepository {
       tagIds?: string[];
       status?: ArticleStatus;
       publishedAt?: Date | null;
+      publishedSnapshot?: Article | null;
+      publishedSlug?: string | null;
       mediaUrls?: string[];
+      expectedUpdatedAt?: Date;
+      audit: { userId: string; description: string };
     },
   ): Promise<Article> {
     const row = await this.prisma.$transaction(async (tx) => {
+      if (input.expectedUpdatedAt) {
+        const current = await tx.article.findUnique({
+          where: { id },
+          select: { updatedAt: true },
+        });
+        if (!current || current.updatedAt.getTime() !== input.expectedUpdatedAt.getTime()) {
+          throw new ConflictException('文章已被其他编辑修改，请刷新后再保存');
+        }
+      }
       if (input.tagIds) {
         await tx.articleTag.deleteMany({ where: { articleId: id } });
       }
@@ -163,7 +241,7 @@ export class ArticlesRepository {
             select: { id: true },
           })
         : [];
-      return tx.article.update({
+      const article = await tx.article.update({
         where: { id },
         data: {
           title: input.title,
@@ -180,6 +258,10 @@ export class ArticlesRepository {
           categoryId: input.categoryId,
           status: input.status?.toUpperCase() as never,
           publishedAt: input.publishedAt,
+          publishedSnapshot: input.publishedSnapshot === null
+            ? Prisma.JsonNull
+            : input.publishedSnapshot as unknown as Prisma.InputJsonValue | undefined,
+          publishedSlug: input.publishedSlug,
           tags: input.tagIds
             ? { create: input.tagIds.map((tagId) => ({ tagId })) }
             : undefined,
@@ -189,6 +271,16 @@ export class ArticlesRepository {
         },
         include: articleInclude,
       });
+      await tx.auditLog.create({
+        data: {
+          id: randomUUID(),
+          userId: input.audit.userId,
+          action: 'UPDATE_ARTICLE',
+          articleId: article.id,
+          description: input.audit.description,
+        },
+      });
+      return article;
     });
     return this.toDomain(row);
   }
@@ -229,6 +321,14 @@ export class ArticlesRepository {
       createdAt: row.createdAt.toISOString(),
       updatedAt: row.updatedAt.toISOString(),
       publishedAt: row.publishedAt?.toISOString() ?? null,
+      hasPublishedVersion: Boolean(row.publishedSnapshot),
     };
+  }
+
+  private toPublicDomain(row: NonNullable<ArticleRecord>): Article {
+    if (row.status !== 'PUBLISHED' && row.publishedSnapshot) {
+      return row.publishedSnapshot as unknown as Article;
+    }
+    return this.toDomain(row);
   }
 }

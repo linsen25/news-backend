@@ -91,6 +91,7 @@ export interface Article {
   createdAt: string;
   updatedAt: string;
   publishedAt: string | null;
+  hasPublishedVersion: boolean;
 }
 
 export interface ArticleRevision {

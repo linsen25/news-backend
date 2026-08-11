@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
 import {
   Article,
@@ -8,6 +8,7 @@ import {
 } from '../../../common/types/domain';
 import { PrismaService } from '../prisma.service';
 import { ArticlesRepository } from './articles.repository';
+import { Prisma } from '../../../../generated/prisma/client';
 
 @Injectable()
 export class ArticleWorkflowRepository {
@@ -27,14 +28,22 @@ export class ArticleWorkflowRepository {
     publishedAt?: Date;
   }): Promise<Article> {
     await this.prisma.$transaction(async (tx) => {
-      await tx.article.update({
-        where: { id: input.article.id },
+      const result = await tx.article.updateMany({
+        where: {
+          id: input.article.id,
+          status: input.article.status.toUpperCase() as never,
+        },
         data: {
           status: input.status.toUpperCase() as never,
           currentEditorId: input.actor.id,
           publishedAt: input.publishedAt,
+          publishedSnapshot: input.status === 'published' ? Prisma.JsonNull : undefined,
+          publishedSlug: input.status === 'published' ? null : undefined,
         },
       });
+      if (result.count !== 1) {
+        throw new ConflictException('文章状态已发生变化，请刷新后重试');
+      }
       await tx.articleRevision.create({
         data: {
           id: randomUUID(),

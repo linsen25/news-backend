@@ -30,6 +30,7 @@ import { Public } from '../auth/public.decorator';
 import { User } from '../../common/types/domain';
 import { ArticleQueryDto } from './dto/article-query.dto';
 import { ArticlePageDto } from './dto/article-page.dto';
+import { JwtService } from '@nestjs/jwt';
 
 @ApiTags('Articles', 'Review')
 @ApiBearerAuth('jwt')
@@ -37,6 +38,7 @@ import { ArticlePageDto } from './dto/article-page.dto';
 export class ArticlesController {
   constructor(
     private readonly articlesService: ArticlesService,
+    private readonly jwt: JwtService,
   ) {}
 
   @Get()
@@ -73,11 +75,39 @@ export class ArticlesController {
   @Public()
   @ApiOperation({ summary: 'Preview draft or unpublished article' })
   @ApiOkResponse({ type: ArticleDto })
-  preview(@Param('id') id: string, @Query('token') token?: string) {
-    if (token !== 'mock-preview-token') {
+  async preview(@Param('id') id: string, @Query('token') token?: string) {
+    if (!token) {
       throw new UnauthorizedException('Invalid preview token');
     }
+    try {
+      const payload = await this.jwt.verifyAsync<{
+        articleId?: string;
+        purpose?: string;
+      }>(token);
+      if (payload.articleId !== id || payload.purpose !== 'article-preview') {
+        throw new UnauthorizedException('Invalid preview token');
+      }
+    } catch {
+      throw new UnauthorizedException('Preview token expired or invalid');
+    }
     return this.articlesService.findOne(id);
+  }
+
+  @Post(':id/preview-token')
+  @HttpCode(200)
+  @ApiOperation({ summary: 'Create a short-lived preview token for one article' })
+  async createPreviewToken(
+    @Param('id') id: string,
+    @CurrentUser() user: User,
+  ) {
+    await this.articlesService.findOne(id, user);
+    return {
+      token: await this.jwt.signAsync(
+        { sub: user.id, articleId: id, purpose: 'article-preview' },
+        { expiresIn: '15m' },
+      ),
+      expiresIn: 900,
+    };
   }
 
   @Get(':id')

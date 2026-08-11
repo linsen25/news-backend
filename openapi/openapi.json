@@ -300,6 +300,24 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "description": "Search title, summary, byline, category, tag, or editor",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "reviewQueue",
+            "required": false,
+            "in": "query",
+            "description": "Only return review and approved workflow items",
+            "schema": {
+              "type": "boolean"
+            }
           }
         ],
         "responses": {
@@ -501,6 +519,36 @@
           }
         ],
         "summary": "Preview draft or unpublished article",
+        "tags": [
+          "Articles",
+          "Review"
+        ]
+      }
+    },
+    "/api/articles/{id}/preview-token": {
+      "post": {
+        "operationId": "ArticlesController_createPreviewToken",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "jwt": []
+          }
+        ],
+        "summary": "Create a short-lived preview token for one article",
         "tags": [
           "Articles",
           "Review"
@@ -1775,6 +1823,10 @@
             "type": "string",
             "format": "date-time",
             "nullable": true
+          },
+          "hasPublishedVersion": {
+            "type": "boolean",
+            "description": "编辑中的文章是否仍有一个旧版本在线展示"
           }
         },
         "required": [
@@ -1796,7 +1848,8 @@
           "tags",
           "createdAt",
           "updatedAt",
-          "publishedAt"
+          "publishedAt",
+          "hasPublishedVersion"
         ]
       },
       "ArticlePageDto": {
@@ -2052,6 +2105,11 @@
               "rejected",
               "published"
             ]
+          },
+          "expectedUpdatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "客户端最后读取到的 updatedAt，用于防止覆盖他人的新修改"
           }
         }
       },
