@@ -11,6 +11,9 @@ export class EntityReferenceDto {
 export class CategoryReferenceDto extends EntityReferenceDto {
   @ApiProperty({ example: 'ai' })
   slug!: string;
+
+  @ApiPropertyOptional({ nullable: true, example: 'category-technology' })
+  parentId?: string | null;
 }
 
 export class TagDto extends CategoryReferenceDto {}

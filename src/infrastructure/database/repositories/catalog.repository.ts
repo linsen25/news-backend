@@ -13,6 +13,18 @@ export class CatalogRepository {
     return this.prisma.category.findUnique({ where: { id } });
   }
 
+  createCategory(input: { name: string; slug: string; parentId?: string | null }) {
+    return this.prisma.category.create({ data: input });
+  }
+
+  updateCategory(id: string, input: { name?: string; slug?: string; parentId?: string | null }) {
+    return this.prisma.category.update({ where: { id }, data: input });
+  }
+
+  async deleteCategory(id: string): Promise<void> {
+    await this.prisma.category.delete({ where: { id } });
+  }
+
   findTags() {
     return this.prisma.tag.findMany({ orderBy: { createdAt: 'asc' } });
   }
