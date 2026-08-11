@@ -39,6 +39,18 @@ export class UsersRepository {
     return this.prisma.permission.findMany({ orderBy: [{ module: 'asc' }, { key: 'asc' }] });
   }
 
+  createWithRoles(input: { name: string; email: string; passwordHash: string; roleIds: string[] }) {
+    return this.prisma.user.create({
+      data: {
+        name: input.name,
+        email: input.email,
+        passwordHash: input.passwordHash,
+        roles: { create: input.roleIds.map((roleId) => ({ roleId })) },
+      },
+      include: includeRoles,
+    });
+  }
+
   async replaceRoles(userId: string, roleIds: string[]) {
     return this.prisma.$transaction(async (tx) => {
       await tx.userRole.deleteMany({ where: { userId } });

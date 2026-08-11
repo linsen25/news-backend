@@ -7,6 +7,18 @@ import { PasswordService } from '../auth/password.service';
 export class UsersService {
   constructor(private readonly users: UsersRepository, private readonly passwords: PasswordService) {}
 
+  async create(username: string, email: string, password: string, roleIds: string[]) {
+    const roles = await this.users.findRoles();
+    const validIds = new Set(roles.map((role) => role.id));
+    if (roleIds.some((id) => !validIds.has(id))) throw new BadRequestException('One or more roles do not exist');
+    return this.users.createWithRoles({
+      name: username.trim(),
+      email: email.trim().toLowerCase(),
+      passwordHash: await this.passwords.hash(password),
+      roleIds,
+    });
+  }
+
   async updateRoles(userId: string, roleIds: string[], actor: User, email: string, password: string) {
     const authenticatedActor = await this.users.findDomainById(actor.id);
     if (!authenticatedActor || authenticatedActor.email !== email || !(await this.passwords.verify(password, authenticatedActor.passwordHash))) {

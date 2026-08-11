@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Put } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Put } from '@nestjs/common';
 import { ApiBearerAuth, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { UsersRepository } from '../../infrastructure/database/repositories/users.repository';
 import { Permissions } from '../auth/permissions.decorator';
@@ -9,6 +9,7 @@ import { RoleDto } from './dto/role.dto';
 import { UpdateUserRolesDto } from './dto/update-user-roles.dto';
 import { UserDto } from './dto/user.dto';
 import { UsersService } from './users.service';
+import { CreateUserDto } from './dto/create-user.dto';
 
 const toPermissionDto = (permission: { key: string; module: string; description: string }) => ({
   key: permission.key,
@@ -37,6 +38,13 @@ export class UsersController {
   @Permissions('users.view')
   @ApiOkResponse({ type: [UserDto] })
   async findAll() { return (await this.users.findAllWithRoles()).map(toUserDto); }
+
+  @Post()
+  @Permissions('users.permissions.manage')
+  @ApiOkResponse({ type: UserDto })
+  async create(@Body() input: CreateUserDto) {
+    return toUserDto(await this.service.create(input.username, input.email, input.password, input.roleIds));
+  }
 
   @Get('roles')
   @Permissions('users.view')
