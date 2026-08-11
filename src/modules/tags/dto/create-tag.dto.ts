@@ -8,6 +8,12 @@ export class CreateTagDto {
   @MaxLength(50)
   name!: string;
 
+  @ApiProperty({ example: 'Canadian Economy' })
+  @IsString()
+  @MinLength(1)
+  @MaxLength(50)
+  nameEn!: string;
+
   @ApiProperty({ example: 'canada-economy' })
   @IsString()
   @MinLength(1)

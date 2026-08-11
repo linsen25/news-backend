@@ -13,11 +13,11 @@ export class CatalogRepository {
     return this.prisma.category.findUnique({ where: { id } });
   }
 
-  createCategory(input: { name: string; slug: string; parentId?: string | null }) {
+  createCategory(input: { name: string; nameEn: string; slug: string; parentId?: string | null }) {
     return this.prisma.category.create({ data: input });
   }
 
-  updateCategory(id: string, input: { name?: string; slug?: string; parentId?: string | null }) {
+  updateCategory(id: string, input: { name?: string; nameEn?: string; slug?: string; parentId?: string | null }) {
     return this.prisma.category.update({ where: { id }, data: input });
   }
 
@@ -33,11 +33,11 @@ export class CatalogRepository {
     return this.prisma.tag.findUnique({ where: { id } });
   }
 
-  createTag(input: { name: string; slug: string; categoryId: string }) {
+  createTag(input: { name: string; nameEn?: string; slug: string; categoryId: string }) {
     return this.prisma.tag.create({ data: input });
   }
 
-  updateTag(id: string, input: { name?: string; slug?: string; categoryId?: string }) {
+  updateTag(id: string, input: { name?: string; nameEn?: string; slug?: string; categoryId?: string }) {
     return this.prisma.tag.update({ where: { id }, data: input });
   }
 

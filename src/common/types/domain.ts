@@ -47,6 +47,7 @@ export interface User {
 export interface Category {
   id: string;
   name: string;
+  nameEn: string;
   slug: string;
   parentId: string | null;
 }
@@ -54,6 +55,7 @@ export interface Category {
 export interface Tag {
   id: string;
   name: string;
+  nameEn: string;
   slug: string;
   categoryId?: string | null;
 }
@@ -85,7 +87,7 @@ export interface Article {
   articleDate: string;
   author: Pick<User, 'id' | 'name'>;
   currentEditor: Pick<User, 'id' | 'name'>;
-  category: Pick<Category, 'id' | 'name' | 'slug'>;
+  category: Pick<Category, 'id' | 'name' | 'nameEn' | 'slug'>;
   tags: Tag[];
   status: ArticleStatus;
   createdAt: string;

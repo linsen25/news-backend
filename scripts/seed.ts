@@ -71,6 +71,7 @@ async function seed() {
       where: { id: category.id },
       update: {
         name: category.name,
+        nameEn: category.nameEn,
         slug: category.slug,
         parentId: category.parentId,
       },
@@ -86,7 +87,7 @@ async function seed() {
   for (const tag of mockTags) {
     await prisma.tag.upsert({
       where: { id: tag.id },
-      update: { name: tag.name, slug: tag.slug, categoryId: tag.categoryId },
+      update: { name: tag.name, nameEn: tag.nameEn, slug: tag.slug, categoryId: tag.categoryId },
       create: tag,
     });
   }

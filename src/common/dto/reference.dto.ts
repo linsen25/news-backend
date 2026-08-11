@@ -9,6 +9,9 @@ export class EntityReferenceDto {
 }
 
 export class CategoryReferenceDto extends EntityReferenceDto {
+  @ApiProperty({ example: 'Technology', description: 'English display name; clients fall back to name when empty' })
+  nameEn!: string;
+
   @ApiProperty({ example: 'ai' })
   slug!: string;
 

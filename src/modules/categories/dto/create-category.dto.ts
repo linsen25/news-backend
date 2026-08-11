@@ -8,6 +8,12 @@ export class CreateCategoryDto {
   @MaxLength(50)
   name!: string;
 
+  @ApiProperty({ example: 'Canada' })
+  @IsString()
+  @MinLength(1)
+  @MaxLength(50)
+  nameEn!: string;
+
   @ApiProperty({ example: 'canada' })
   @IsString()
   @MinLength(1)

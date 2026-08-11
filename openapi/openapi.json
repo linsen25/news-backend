@@ -1685,6 +1685,11 @@
             "type": "string",
             "example": "林作者"
           },
+          "nameEn": {
+            "type": "string",
+            "example": "Technology",
+            "description": "English display name; clients fall back to name when empty"
+          },
           "slug": {
             "type": "string",
             "example": "ai"
@@ -1698,6 +1703,7 @@
         "required": [
           "id",
           "name",
+          "nameEn",
           "slug"
         ]
       },
@@ -1711,6 +1717,11 @@
           "name": {
             "type": "string",
             "example": "林作者"
+          },
+          "nameEn": {
+            "type": "string",
+            "example": "Technology",
+            "description": "English display name; clients fall back to name when empty"
           },
           "slug": {
             "type": "string",
@@ -1730,6 +1741,7 @@
         "required": [
           "id",
           "name",
+          "nameEn",
           "slug"
         ]
       },
@@ -2133,6 +2145,10 @@
             "type": "string",
             "example": "加拿大"
           },
+          "nameEn": {
+            "type": "string",
+            "example": "Canada"
+          },
           "slug": {
             "type": "string",
             "example": "canada"
@@ -2140,6 +2156,7 @@
         },
         "required": [
           "name",
+          "nameEn",
           "slug"
         ]
       },
@@ -2149,6 +2166,10 @@
           "name": {
             "type": "string",
             "example": "加拿大"
+          },
+          "nameEn": {
+            "type": "string",
+            "example": "Canada"
           },
           "slug": {
             "type": "string",
@@ -2180,6 +2201,10 @@
             "type": "string",
             "example": "加拿大经济"
           },
+          "nameEn": {
+            "type": "string",
+            "example": "Canadian Economy"
+          },
           "slug": {
             "type": "string",
             "example": "canada-economy"
@@ -2191,6 +2216,7 @@
         },
         "required": [
           "name",
+          "nameEn",
           "slug",
           "categoryId"
         ]
@@ -2201,6 +2227,10 @@
           "name": {
             "type": "string",
             "example": "加拿大经济"
+          },
+          "nameEn": {
+            "type": "string",
+            "example": "Canadian Economy"
           },
           "slug": {
             "type": "string",

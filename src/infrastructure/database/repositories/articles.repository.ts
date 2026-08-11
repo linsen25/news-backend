@@ -310,11 +310,13 @@ export class ArticlesRepository {
       category: {
         id: row.category.id,
         name: row.category.name,
+        nameEn: row.category.nameEn,
         slug: row.category.slug,
       },
       tags: row.tags.map(({ tag }) => ({
         id: tag.id,
         name: tag.name,
+        nameEn: tag.nameEn,
         slug: tag.slug,
       })),
       status: row.status.toLowerCase() as ArticleStatus,
