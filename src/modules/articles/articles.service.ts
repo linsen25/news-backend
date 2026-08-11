@@ -112,9 +112,9 @@ export class ArticlesService {
     ) {
       throw new ForbiddenException('Authors can only edit their own articles');
     }
-    if (!['draft', 'rejected'].includes(article.status)) {
+    if (!['draft', 'rejected', 'published'].includes(article.status)) {
       throw new BadRequestException(
-        'Only draft or rejected articles can be edited',
+        'Only draft, rejected, or published articles can be edited',
       );
     }
     const categoryId = input.categoryId ?? article.category.id;
@@ -137,6 +137,7 @@ export class ArticlesService {
       categoryId: input.categoryId,
       tagIds: input.tagIds,
       status: 'draft',
+      publishedAt: article.status === 'published' ? null : undefined,
       mediaUrls: this.extractMediaUrls(
         input.content ?? article.content,
         input.coverImage ?? article.coverImage,
