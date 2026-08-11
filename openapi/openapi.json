@@ -113,6 +113,40 @@
         "tags": [
           "Users"
         ]
+      },
+      "post": {
+        "operationId": "UsersController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateUserDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "jwt": []
+          }
+        ],
+        "tags": [
+          "Users"
+        ]
       }
     },
     "/api/users/roles": {
@@ -780,9 +814,129 @@
         "parameters": [],
         "responses": {
           "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CategoryReferenceDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "jwt": []
+          }
+        ],
+        "tags": [
+          "Categories"
+        ]
+      },
+      "post": {
+        "operationId": "CategoriesController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCategoryDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CategoryReferenceDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "jwt": []
+          }
+        ],
+        "tags": [
+          "Categories"
+        ]
+      }
+    },
+    "/api/categories/{id}": {
+      "put": {
+        "operationId": "CategoriesController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateCategoryDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CategoryReferenceDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "jwt": []
+          }
+        ],
+        "tags": [
+          "Categories"
+        ]
+      },
+      "delete": {
+        "operationId": "CategoriesController_delete",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
             "description": ""
           }
         },
+        "security": [
+          {
+            "jwt": []
+          }
+        ],
         "tags": [
           "Categories"
         ]
@@ -825,6 +979,42 @@
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/CreateTagDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TagDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "jwt": []
+          }
+        ],
+        "tags": [
+          "Tags"
+        ]
+      }
+    },
+    "/api/tags/custom": {
+      "post": {
+        "operationId": "TagsController_createCustom",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCustomTagDto"
               }
             }
           }
@@ -1298,6 +1488,39 @@
           "createdAt"
         ]
       },
+      "CreateUserDto": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string",
+            "example": "王编辑"
+          },
+          "email": {
+            "type": "string",
+            "example": "editor@example.com"
+          },
+          "password": {
+            "type": "string",
+            "example": "123456",
+            "minLength": 6
+          },
+          "roleIds": {
+            "example": [
+              "role-author"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "username",
+          "email",
+          "password",
+          "roleIds"
+        ]
+      },
       "UpdateUserRolesDto": {
         "type": "object",
         "properties": {
@@ -1417,6 +1640,11 @@
           "slug": {
             "type": "string",
             "example": "ai"
+          },
+          "parentId": {
+            "type": "object",
+            "nullable": true,
+            "example": "category-technology"
           }
         },
         "required": [
@@ -1439,6 +1667,16 @@
           "slug": {
             "type": "string",
             "example": "ai"
+          },
+          "parentId": {
+            "type": "object",
+            "nullable": true,
+            "example": "category-technology"
+          },
+          "categoryId": {
+            "type": "object",
+            "nullable": true,
+            "example": "cat-tech"
           }
         },
         "required": [
@@ -1491,6 +1729,14 @@
             "type": "string",
             "example": "https://example.com/cover.jpg"
           },
+          "byline": {
+            "type": "string",
+            "example": "李明（本报特约记者）"
+          },
+          "articleDate": {
+            "type": "string",
+            "format": "date-time"
+          },
           "status": {
             "type": "string",
             "enum": [
@@ -1541,6 +1787,8 @@
           "keywords",
           "content",
           "coverImage",
+          "byline",
+          "articleDate",
           "status",
           "author",
           "currentEditor",
@@ -1672,6 +1920,17 @@
             "type": "string",
             "example": "https://example.com/cover.jpg"
           },
+          "byline": {
+            "type": "string",
+            "example": "李明（本报特约记者）",
+            "description": "面向读者展示的文章署名；与后台录入账号分开"
+          },
+          "articleDate": {
+            "type": "string",
+            "example": "2026-08-12T00:00:00.000Z",
+            "format": "date-time",
+            "description": "稿件日期；与系统创建时间和发布时间分开"
+          },
           "authorId": {
             "type": "string",
             "example": "user-author"
@@ -1682,7 +1941,7 @@
           },
           "categoryId": {
             "type": "string",
-            "example": "cat-ai"
+            "example": "cat-tech"
           },
           "tagIds": {
             "example": [
@@ -1707,7 +1966,8 @@
         "required": [
           "title",
           "authorId",
-          "categoryId"
+          "categoryId",
+          "tagIds"
         ]
       },
       "UpdateArticleDto": {
@@ -1751,6 +2011,17 @@
             "type": "string",
             "example": "https://example.com/cover.jpg"
           },
+          "byline": {
+            "type": "string",
+            "example": "李明（本报特约记者）",
+            "description": "面向读者展示的文章署名；与后台录入账号分开"
+          },
+          "articleDate": {
+            "type": "string",
+            "example": "2026-08-12T00:00:00.000Z",
+            "format": "date-time",
+            "description": "稿件日期；与系统创建时间和发布时间分开"
+          },
           "authorId": {
             "type": "string",
             "example": "user-author"
@@ -1761,7 +2032,7 @@
           },
           "categoryId": {
             "type": "string",
-            "example": "cat-ai"
+            "example": "cat-tech"
           },
           "tagIds": {
             "example": [
@@ -1797,6 +2068,53 @@
           "comment"
         ]
       },
+      "CreateCategoryDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "加拿大"
+          },
+          "slug": {
+            "type": "string",
+            "example": "canada"
+          }
+        },
+        "required": [
+          "name",
+          "slug"
+        ]
+      },
+      "UpdateCategoryDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "加拿大"
+          },
+          "slug": {
+            "type": "string",
+            "example": "canada"
+          }
+        }
+      },
+      "CreateCustomTagDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "量子计算"
+          },
+          "categoryId": {
+            "type": "string",
+            "example": "cat-tech"
+          }
+        },
+        "required": [
+          "name",
+          "categoryId"
+        ]
+      },
       "CreateTagDto": {
         "type": "object",
         "properties": {
@@ -1807,11 +2125,16 @@
           "slug": {
             "type": "string",
             "example": "canada-economy"
+          },
+          "categoryId": {
+            "type": "string",
+            "example": "cat-tech"
           }
         },
         "required": [
           "name",
-          "slug"
+          "slug",
+          "categoryId"
         ]
       },
       "UpdateTagDto": {
@@ -1824,6 +2147,10 @@
           "slug": {
             "type": "string",
             "example": "canada-economy"
+          },
+          "categoryId": {
+            "type": "string",
+            "example": "cat-tech"
           }
         }
       },

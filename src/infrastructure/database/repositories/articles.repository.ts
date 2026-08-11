@@ -87,6 +87,8 @@ export class ArticlesRepository {
     keywords: string[];
     content: TipTapDocument;
     coverImage: string;
+    byline: string;
+    articleDate: Date;
     authorId: string;
     currentEditorId: string;
     categoryId: string;
@@ -109,6 +111,8 @@ export class ArticlesRepository {
           keywords: input.keywords,
           content: input.content as object,
           coverImage: input.coverImage,
+          byline: input.byline,
+          articleDate: input.articleDate,
           authorId: input.authorId,
           currentEditorId: input.currentEditorId,
           categoryId: input.categoryId,
@@ -136,6 +140,8 @@ export class ArticlesRepository {
       keywords?: string[];
       content?: TipTapDocument;
       coverImage?: string;
+      byline?: string;
+      articleDate?: Date;
       currentEditorId: string;
       categoryId?: string;
       tagIds?: string[];
@@ -168,6 +174,8 @@ export class ArticlesRepository {
           keywords: input.keywords,
           content: input.content as object | undefined,
           coverImage: input.coverImage,
+          byline: input.byline,
+          articleDate: input.articleDate,
           currentEditorId: input.currentEditorId,
           categoryId: input.categoryId,
           status: input.status?.toUpperCase() as never,
@@ -200,6 +208,8 @@ export class ArticlesRepository {
       keywords: row.keywords,
       content: row.content as unknown as TipTapDocument,
       coverImage: row.coverImage,
+      byline: row.byline,
+      articleDate: row.articleDate.toISOString(),
       author: { id: row.author.id, name: row.author.name },
       currentEditor: {
         id: row.currentEditor.id,

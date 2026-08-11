@@ -81,6 +81,8 @@ export interface Article {
   keywords: string[];
   content: TipTapDocument;
   coverImage: string;
+  byline: string;
+  articleDate: string;
   author: Pick<User, 'id' | 'name'>;
   currentEditor: Pick<User, 'id' | 'name'>;
   category: Pick<Category, 'id' | 'name' | 'slug'>;

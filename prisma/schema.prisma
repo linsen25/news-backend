@@ -91,14 +91,14 @@ model Category {
 }
 
 model Tag {
-  id        String       @id @default(cuid())
-  name      String       @unique
-  slug      String       @unique
+  id         String       @id @default(cuid())
+  name       String       @unique
+  slug       String       @unique
   categoryId String?      @map("category_id")
-  createdAt DateTime     @default(now()) @map("created_at") @db.Timestamptz(3)
-  updatedAt DateTime     @updatedAt @map("updated_at") @db.Timestamptz(3)
-  articles  ArticleTag[]
-  category  Category?    @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  createdAt  DateTime     @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt  DateTime     @updatedAt @map("updated_at") @db.Timestamptz(3)
+  articles   ArticleTag[]
+  category   Category?    @relation(fields: [categoryId], references: [id], onDelete: SetNull)
 
   @@index([categoryId])
   @@map("tags")
@@ -112,6 +112,8 @@ model Article {
   content         Json
   coverImage      String            @default("") @map("cover_image")
   status          ArticleStatus     @default(DRAFT)
+  byline          String            @default("")
+  articleDate     DateTime          @default(now()) @map("article_date") @db.Timestamptz(3)
   authorId        String            @map("author_id")
   currentEditorId String            @map("current_editor_id")
   categoryId      String            @map("category_id")

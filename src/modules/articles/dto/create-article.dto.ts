@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { ArrayMinSize, IsArray, IsIn, IsObject, IsOptional, IsString } from 'class-validator';
+import { ArrayMinSize, IsArray, IsDateString, IsIn, IsObject, IsOptional, IsString } from 'class-validator';
 import { ArticleStatus, TipTapDocument } from '../../../common/types/domain';
 import { TipTapDocumentDto } from '../../../common/dto/reference.dto';
 
@@ -43,6 +43,16 @@ export class CreateArticleDto {
   @IsString()
   @IsOptional()
   coverImage?: string;
+
+  @ApiPropertyOptional({ example: '李明（本报特约记者）', description: '面向读者展示的文章署名；与后台录入账号分开' })
+  @IsString()
+  @IsOptional()
+  byline?: string;
+
+  @ApiPropertyOptional({ example: '2026-08-12T00:00:00.000Z', format: 'date-time', description: '稿件日期；与系统创建时间和发布时间分开' })
+  @IsDateString()
+  @IsOptional()
+  articleDate?: string;
 
   @ApiProperty({ example: 'user-author' })
   @IsString()

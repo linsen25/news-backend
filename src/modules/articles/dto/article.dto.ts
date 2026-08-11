@@ -43,6 +43,12 @@ export class ArticleDto {
   @ApiProperty({ example: 'https://example.com/cover.jpg' })
   coverImage!: string;
 
+  @ApiProperty({ example: '李明（本报特约记者）' })
+  byline!: string;
+
+  @ApiProperty({ format: 'date-time' })
+  articleDate!: string;
+
   @ApiProperty({ enum: ARTICLE_STATUSES, example: 'draft' })
   status!: ArticleStatus;
 
