@@ -2,6 +2,8 @@ import { Body, Controller, Get, Param, Put } from '@nestjs/common';
 import { ApiBearerAuth, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { UsersRepository } from '../../infrastructure/database/repositories/users.repository';
 import { Permissions } from '../auth/permissions.decorator';
+import { CurrentUser } from '../auth/current-user.decorator';
+import { User } from '../../common/types/domain';
 import { PermissionDto } from './dto/permission.dto';
 import { RoleDto } from './dto/role.dto';
 import { UpdateUserRolesDto } from './dto/update-user-roles.dto';
@@ -55,7 +57,7 @@ export class UsersController {
   @Put(':id/roles')
   @Permissions('users.permissions.manage')
   @ApiOkResponse({ type: UserDto })
-  async updateRoles(@Param('id') id: string, @Body() input: UpdateUserRolesDto) {
-    return toUserDto(await this.service.updateRoles(id, input.roleIds));
+  async updateRoles(@Param('id') id: string, @Body() input: UpdateUserRolesDto, @CurrentUser() actor: User) {
+    return toUserDto(await this.service.updateRoles(id, input.roleIds, actor, input.email, input.password));
   }
 }

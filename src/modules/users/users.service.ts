@@ -1,11 +1,17 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { User } from '../../common/types/domain';
 import { UsersRepository } from '../../infrastructure/database/repositories/users.repository';
+import { PasswordService } from '../auth/password.service';
 
 @Injectable()
 export class UsersService {
-  constructor(private readonly users: UsersRepository) {}
+  constructor(private readonly users: UsersRepository, private readonly passwords: PasswordService) {}
 
-  async updateRoles(userId: string, roleIds: string[]) {
+  async updateRoles(userId: string, roleIds: string[], actor: User, email: string, password: string) {
+    const authenticatedActor = await this.users.findDomainById(actor.id);
+    if (!authenticatedActor || authenticatedActor.email !== email || !(await this.passwords.verify(password, authenticatedActor.passwordHash))) {
+      throw new UnauthorizedException('当前管理员账号或密码不正确');
+    }
     const [user, roles] = await Promise.all([
       this.users.findByIdWithRoles(userId),
       this.users.findRoles(),

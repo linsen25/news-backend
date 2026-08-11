@@ -30,6 +30,6 @@ import { PasswordService } from './password.service';
     { provide: APP_GUARD, useClass: JwtAuthGuard },
     { provide: APP_GUARD, useClass: PermissionGuard },
   ],
-  exports: [PermissionsService],
+  exports: [PermissionsService, PasswordService],
 })
 export class AuthModule {}
