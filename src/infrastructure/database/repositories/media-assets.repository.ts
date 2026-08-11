@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
+import { normalizeUploadFilename } from '../../../modules/upload/upload-filename';
 
 const includeUploader = {
   uploadedBy: true,
@@ -61,7 +62,7 @@ export class MediaAssetsRepository {
       id: row.id,
       url: row.url,
       publicId: row.publicId,
-      filename: row.filename,
+      filename: normalizeUploadFilename(row.filename),
       mimeType: row.mimeType,
       size: row.size,
       uploadedBy: { id: row.uploadedBy.id, name: row.uploadedBy.name },

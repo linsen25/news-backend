@@ -9,6 +9,7 @@ import { User } from '../../common/types/domain';
 import { MediaAssetsRepository } from '../../infrastructure/database/repositories/media-assets.repository';
 import { PermissionsService } from '../auth/permissions.service';
 import { CloudinaryService } from './cloudinary.service';
+import { normalizeUploadFilename } from './upload-filename';
 
 @Injectable()
 export class UploadService {
@@ -25,7 +26,7 @@ export class UploadService {
         id: randomUUID(),
         url: uploaded.secure_url,
         publicId: uploaded.public_id,
-        filename: file.originalname,
+        filename: normalizeUploadFilename(file.originalname),
         mimeType: file.mimetype,
         size: uploaded.bytes || file.size,
         uploadedById: actor.id,
