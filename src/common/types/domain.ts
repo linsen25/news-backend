@@ -3,7 +3,8 @@ export type ArticleStatus =
   | 'review'
   | 'approved'
   | 'rejected'
-  | 'published';
+  | 'published'
+  | 'withdrawn';
 
 export type PermissionKey =
   | 'articles.view.own'
@@ -113,6 +114,7 @@ export type AuditAction =
   | 'REJECT_ARTICLE'
   | 'PUBLISH_ARTICLE'
   | 'DELETE_ARTICLE'
+  | 'WITHDRAW_ARTICLE'
   | 'LOGIN';
 
 export interface AuditLog {

@@ -30,6 +30,7 @@ export class ArticlesRepository {
   async findPublished(): Promise<Article[]> {
     const rows = await this.prisma.article.findMany({
       where: {
+        status: { not: 'WITHDRAWN' },
         OR: [
           { status: 'PUBLISHED' },
           { publishedSnapshot: { not: Prisma.JsonNull } },
@@ -45,6 +46,7 @@ export class ArticlesRepository {
     const row = await this.prisma.article.findFirst({
       where: {
         id,
+        status: { not: 'WITHDRAWN' },
         OR: [
           { status: 'PUBLISHED' },
           { publishedSnapshot: { not: Prisma.JsonNull } },
@@ -58,6 +60,7 @@ export class ArticlesRepository {
   async findPublishedBySlug(slug: string): Promise<Article | null> {
     const row = await this.prisma.article.findFirst({
       where: {
+        status: { not: 'WITHDRAWN' },
         OR: [
           { status: 'PUBLISHED', slug },
           { publishedSlug: slug },
@@ -323,7 +326,7 @@ export class ArticlesRepository {
       createdAt: row.createdAt.toISOString(),
       updatedAt: row.updatedAt.toISOString(),
       publishedAt: row.publishedAt?.toISOString() ?? null,
-      hasPublishedVersion: Boolean(row.publishedSnapshot),
+      hasPublishedVersion: row.status !== 'WITHDRAWN' && Boolean(row.publishedSnapshot),
     };
   }
 

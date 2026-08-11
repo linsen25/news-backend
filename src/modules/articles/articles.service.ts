@@ -110,9 +110,9 @@ export class ArticlesService {
     ) {
       throw new ForbiddenException('Authors can only edit their own articles');
     }
-    if (!['draft', 'rejected', 'published'].includes(article.status)) {
+    if (!['draft', 'rejected', 'published', 'withdrawn'].includes(article.status)) {
       throw new BadRequestException(
-        'Only draft, rejected, or published articles can be edited',
+        'Only draft, rejected, published, or withdrawn articles can be edited',
       );
     }
     const categoryId = input.categoryId ?? article.category.id;
@@ -135,8 +135,8 @@ export class ArticlesService {
       categoryId: input.categoryId,
       tagIds: input.tagIds,
       status: 'draft',
-      publishedSnapshot: article.status === 'published' ? article : undefined,
-      publishedSlug: article.status === 'published' ? article.slug : undefined,
+      publishedSnapshot: article.status === 'published' ? article : article.status === 'withdrawn' ? null : undefined,
+      publishedSlug: article.status === 'published' ? article.slug : article.status === 'withdrawn' ? null : undefined,
       expectedUpdatedAt: input.expectedUpdatedAt
         ? new Date(input.expectedUpdatedAt)
         : undefined,
@@ -214,6 +214,23 @@ export class ArticlesService {
       description: `发布文章《${article.title}》`,
       revisionNote: '正式发布',
       publishedAt: new Date(),
+    });
+  }
+
+  async withdraw(id: string, actor: User): Promise<Article> {
+    const article = await this.findOne(id, actor);
+    if (article.status !== 'published' && !article.hasPublishedVersion) {
+      throw new BadRequestException('Only a publicly visible article can be withdrawn');
+    }
+    return this.workflow.transition({
+      article,
+      actor,
+      status: 'withdrawn',
+      action: 'WITHDRAW_ARTICLE',
+      description: `撤下文章《${article.title}》`,
+      revisionNote: '文章撤稿',
+      publishedSnapshot: article.status === 'published' ? article : undefined,
+      publishedSlug: article.status === 'published' ? article.slug : undefined,
     });
   }
 

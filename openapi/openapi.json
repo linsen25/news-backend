@@ -856,6 +856,43 @@
         ]
       }
     },
+    "/api/articles/{id}/withdraw": {
+      "post": {
+        "operationId": "ArticlesController_withdraw",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ArticleDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "jwt": []
+          }
+        ],
+        "summary": "Withdraw a publicly visible article",
+        "tags": [
+          "Articles",
+          "Review"
+        ]
+      }
+    },
     "/api/categories": {
       "get": {
         "operationId": "CategoriesController_findAll",
@@ -1804,7 +1841,8 @@
               "review",
               "approved",
               "rejected",
-              "published"
+              "published",
+              "withdrawn"
             ],
             "example": "draft"
           },
@@ -2024,7 +2062,8 @@
               "review",
               "approved",
               "rejected",
-              "published"
+              "published",
+              "withdrawn"
             ]
           }
         },
@@ -2115,7 +2154,8 @@
               "review",
               "approved",
               "rejected",
-              "published"
+              "published",
+              "withdrawn"
             ]
           },
           "expectedUpdatedAt": {

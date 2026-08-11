@@ -198,6 +198,15 @@ export class ArticlesController {
     return this.articlesService.publish(id, user);
   }
 
+  @Post(':id/withdraw')
+  @HttpCode(200)
+  @Permissions('articles.publish')
+  @ApiOperation({ summary: 'Withdraw a publicly visible article' })
+  @ApiOkResponse({ type: ArticleDto })
+  withdraw(@Param('id') id: string, @CurrentUser() user: User) {
+    return this.articlesService.withdraw(id, user);
+  }
+
   @Delete(':id')
   @HttpCode(204)
   @ApiNoContentResponse()

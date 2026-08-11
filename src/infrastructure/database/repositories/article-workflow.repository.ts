@@ -26,6 +26,8 @@ export class ArticleWorkflowRepository {
     revisionNote: string;
     reviewComment?: string;
     publishedAt?: Date;
+    publishedSnapshot?: Article;
+    publishedSlug?: string;
   }): Promise<Article> {
     await this.prisma.$transaction(async (tx) => {
       const result = await tx.article.updateMany({
@@ -39,6 +41,10 @@ export class ArticleWorkflowRepository {
           publishedAt: input.publishedAt,
           publishedSnapshot: input.status === 'published' ? Prisma.JsonNull : undefined,
           publishedSlug: input.status === 'published' ? null : undefined,
+          ...(input.publishedSnapshot ? {
+            publishedSnapshot: input.publishedSnapshot as unknown as Prisma.InputJsonValue,
+            publishedSlug: input.publishedSlug,
+          } : {}),
         },
       });
       if (result.count !== 1) {

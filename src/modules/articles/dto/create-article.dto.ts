@@ -74,9 +74,9 @@ export class CreateArticleDto {
   tagIds!: string[];
 
   @ApiPropertyOptional({
-    enum: ['draft', 'review', 'approved', 'rejected', 'published'],
+    enum: ['draft', 'review', 'approved', 'rejected', 'published', 'withdrawn'],
   })
-  @IsIn(['draft', 'review', 'approved', 'rejected', 'published'])
+  @IsIn(['draft', 'review', 'approved', 'rejected', 'published', 'withdrawn'])
   @IsOptional()
   status?: ArticleStatus;
 }

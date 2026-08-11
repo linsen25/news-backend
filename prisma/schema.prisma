@@ -234,6 +234,7 @@ enum ArticleStatus {
   APPROVED  @map("approved")
   REJECTED  @map("rejected")
   PUBLISHED @map("published")
+  WITHDRAWN @map("withdrawn")
 
   @@map("article_status")
 }
@@ -247,6 +248,7 @@ enum AuditAction {
   PUBLISH_ARTICLE
   LOGIN
   DELETE_ARTICLE
+  WITHDRAW_ARTICLE
 
   @@map("audit_action")
 }

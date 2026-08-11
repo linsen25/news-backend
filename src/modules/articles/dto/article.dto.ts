@@ -13,6 +13,7 @@ export const ARTICLE_STATUSES: ArticleStatus[] = [
   'approved',
   'rejected',
   'published',
+  'withdrawn',
 ];
 
 export class ArticleDto {

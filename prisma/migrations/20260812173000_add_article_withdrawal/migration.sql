@@ -1,0 +1,2 @@
+ALTER TYPE "article_status" ADD VALUE IF NOT EXISTS 'withdrawn';
+ALTER TYPE "audit_action" ADD VALUE IF NOT EXISTS 'WITHDRAW_ARTICLE';
