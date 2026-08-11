@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsArray, IsIn, IsObject, IsOptional, IsString } from 'class-validator';
+import { ArrayMinSize, IsArray, IsIn, IsObject, IsOptional, IsString } from 'class-validator';
 import { ArticleStatus, TipTapDocument } from '../../../common/types/domain';
 import { TipTapDocumentDto } from '../../../common/dto/reference.dto';
 
@@ -57,11 +57,11 @@ export class CreateArticleDto {
   @IsString()
   categoryId!: string;
 
-  @ApiPropertyOptional({ type: [String], example: ['tag-openai'] })
+  @ApiProperty({ type: [String], example: ['tag-openai'] })
   @IsArray()
+  @ArrayMinSize(1, { message: '至少选择一个文章标签' })
   @IsString({ each: true })
-  @IsOptional()
-  tagIds?: string[];
+  tagIds!: string[];
 
   @ApiPropertyOptional({
     enum: ['draft', 'review', 'approved', 'rejected', 'published'],

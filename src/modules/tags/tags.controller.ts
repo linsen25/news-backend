@@ -12,6 +12,8 @@ import { Permissions } from '../auth/permissions.decorator';
 import { CatalogRepository } from '../../infrastructure/database/repositories/catalog.repository';
 import { CreateTagDto } from './dto/create-tag.dto';
 import { UpdateTagDto } from './dto/update-tag.dto';
+import { CreateCustomTagDto } from './dto/create-custom-tag.dto';
+import { randomUUID } from 'node:crypto';
 
 @ApiTags('Tags')
 @ApiBearerAuth('jwt')
@@ -24,6 +26,17 @@ export class TagsController {
   @ApiOkResponse({ type: [TagDto] })
   findAll() {
     return this.catalog.findTags();
+  }
+
+  @Post('custom')
+  @Permissions('articles.create')
+  @ApiCreatedResponse({ type: TagDto })
+  createCustom(@Body() input: CreateCustomTagDto) {
+    return this.catalog.createTag({
+      name: input.name.trim(),
+      categoryId: input.categoryId,
+      slug: `tag-${randomUUID()}`,
+    });
   }
 
   @Post()

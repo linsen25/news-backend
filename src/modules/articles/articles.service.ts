@@ -65,7 +65,7 @@ export class ArticlesService {
 
   async create(input: CreateArticleDto, actor: User): Promise<Article> {
     await this.requireCategory(input.categoryId);
-    await this.requireTags(input.tagIds ?? []);
+    await this.requireTags(input.tagIds, input.categoryId);
     const article = await this.articles.create({
       id: randomUUID(),
       title: input.title,
@@ -82,7 +82,7 @@ export class ArticlesService {
       authorId: actor.id,
       currentEditorId: actor.id,
       categoryId: input.categoryId,
-      tagIds: input.tagIds ?? [],
+      tagIds: input.tagIds,
       mediaUrls: this.extractMediaUrls(
         input.content ?? { type: 'doc', content: [{ type: 'paragraph' }] },
         input.coverImage ?? '',
@@ -115,8 +115,10 @@ export class ArticlesService {
         'Only draft or rejected articles can be edited',
       );
     }
-    if (input.categoryId) await this.requireCategory(input.categoryId);
-    if (input.tagIds) await this.requireTags(input.tagIds);
+    const categoryId = input.categoryId ?? article.category.id;
+    const tagIds = input.tagIds ?? article.tags.map((tag) => tag.id);
+    await this.requireCategory(categoryId);
+    await this.requireTags(tagIds, categoryId);
 
     const updated = await this.articles.update(id, {
       title: input.title,
@@ -252,11 +254,16 @@ export class ArticlesService {
     }
   }
 
-  private async requireTags(ids: string[]): Promise<void> {
+  private async requireTags(ids: string[], categoryId: string): Promise<void> {
+    if (!ids.length) throw new BadRequestException('At least one tag is required');
     await Promise.all(
       ids.map(async (id) => {
-        if (!(await this.catalog.findTag(id))) {
+        const tag = await this.catalog.findTag(id);
+        if (!tag) {
           throw new NotFoundException(`Tag ${id} not found`);
+        }
+        if (tag.categoryId !== categoryId) {
+          throw new BadRequestException(`Tag ${id} does not belong to the selected category`);
         }
       }),
     );
