@@ -16,7 +16,10 @@ export class CategoryReferenceDto extends EntityReferenceDto {
   parentId?: string | null;
 }
 
-export class TagDto extends CategoryReferenceDto {}
+export class TagDto extends CategoryReferenceDto {
+  @ApiPropertyOptional({ nullable: true, example: 'cat-tech' })
+  categoryId?: string | null;
+}
 
 export class TipTapMarkDto {
   @ApiProperty({ example: 'bold' })

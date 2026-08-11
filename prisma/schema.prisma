@@ -82,6 +82,7 @@ model Category {
   createdAt DateTime   @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt DateTime   @updatedAt @map("updated_at") @db.Timestamptz(3)
   articles  Article[]
+  tags      Tag[]
   parent    Category?  @relation("CategoryTree", fields: [parentId], references: [id])
   children  Category[] @relation("CategoryTree")
 
@@ -93,10 +94,13 @@ model Tag {
   id        String       @id @default(cuid())
   name      String       @unique
   slug      String       @unique
+  categoryId String?      @map("category_id")
   createdAt DateTime     @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt DateTime     @updatedAt @map("updated_at") @db.Timestamptz(3)
   articles  ArticleTag[]
+  category  Category?    @relation(fields: [categoryId], references: [id], onDelete: SetNull)
 
+  @@index([categoryId])
   @@map("tags")
 }
 
