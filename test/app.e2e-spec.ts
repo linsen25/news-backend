@@ -91,7 +91,7 @@ describe('Articles API (e2e)', () => {
         coverImage: '',
         authorId: 'user-author',
         currentEditorId: 'user-author',
-        categoryId: 'cat-ai',
+        categoryId: 'cat-tech',
         tagIds: ['tag-openai'],
         status: 'draft',
       })
@@ -151,7 +151,7 @@ describe('Articles API (e2e)', () => {
       .send({
         title: '审核员不能创建',
         authorId: 'user-reviewer',
-        categoryId: 'cat-ai',
+        categoryId: 'cat-tech',
       })
       .expect(403);
 
@@ -226,7 +226,7 @@ describe('Articles API (e2e)', () => {
         title: 'Duplicate slug',
         slug: 'generative-ai-newsroom',
         authorId: 'user-author',
-        categoryId: 'cat-ai',
+        categoryId: 'cat-tech',
       })
       .expect(409)
       .expect(({ body }) => {

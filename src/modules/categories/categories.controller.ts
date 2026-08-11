@@ -24,14 +24,14 @@ export class CategoriesController {
   @Permissions('users.permissions.manage')
   @ApiCreatedResponse({ type: CategoryReferenceDto })
   create(@Body() input: CreateCategoryDto) {
-    return this.catalog.createCategory(input);
+    return this.catalog.createCategory({ ...input, parentId: null });
   }
 
   @Put(':id')
   @Permissions('users.permissions.manage')
   @ApiOkResponse({ type: CategoryReferenceDto })
   update(@Param('id') id: string, @Body() input: UpdateCategoryDto) {
-    return this.catalog.updateCategory(id, input);
+    return this.catalog.updateCategory(id, { ...input, parentId: null });
   }
 
   @Delete(':id')

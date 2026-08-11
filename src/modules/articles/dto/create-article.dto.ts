@@ -53,7 +53,7 @@ export class CreateArticleDto {
   @IsOptional()
   currentEditorId?: string;
 
-  @ApiProperty({ example: 'cat-ai' })
+  @ApiProperty({ example: 'cat-tech' })
   @IsString()
   categoryId!: string;
 

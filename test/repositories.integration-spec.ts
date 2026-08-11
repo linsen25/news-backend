@@ -82,7 +82,7 @@ describe('Prisma repositories (integration)', () => {
       mediaUrls: [`https://res.cloudinary.com/test/image/upload/${mediaId}.jpg`],
       authorId: 'user-author',
       currentEditorId: 'user-author',
-      categoryId: 'cat-ai',
+      categoryId: 'cat-tech',
       tagIds: ['tag-openai'],
     });
     expect(created.author.id).toBe('user-author');
@@ -92,10 +92,10 @@ describe('Prisma repositories (integration)', () => {
     const updated = await articles.update(articleId, {
       summary: 'Updated through Prisma',
       currentEditorId: 'user-author',
-      tagIds: ['tag-policy'],
+      tagIds: ['tag-immigration'],
     });
     expect(updated.summary).toBe('Updated through Prisma');
-    expect(updated.tags.map((tag) => tag.id)).toEqual(['tag-policy']);
+    expect(updated.tags.map((tag) => tag.id)).toEqual(['tag-immigration']);
   });
 
   it('commits review status, revision, comment and audit atomically', async () => {
