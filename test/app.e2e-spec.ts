@@ -24,6 +24,11 @@ describe('Articles API (e2e)', () => {
   let prisma: PrismaService;
 
   beforeAll(async () => {
+    const testDatabaseUrl = process.env.TEST_DATABASE_URL;
+    if (!testDatabaseUrl) {
+      throw new Error('TEST_DATABASE_URL is required for E2E tests. Production DATABASE_URL is never used.');
+    }
+    process.env.DATABASE_URL = testDatabaseUrl;
     const moduleRef = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
@@ -57,7 +62,7 @@ describe('Articles API (e2e)', () => {
         },
       });
     }
-    await app.close();
+    if (app) await app.close();
   });
 
   it('GET /api/articles', () =>
