@@ -113,6 +113,10 @@ model Article {
   summary           String            @default("")
   content           Json
   coverImage        String            @default("") @map("cover_image")
+  coverFocalX       Int               @default(50) @map("cover_focal_x")
+  coverFocalY       Int               @default(50) @map("cover_focal_y")
+  isHeadline        Boolean           @default(false) @map("is_headline")
+  homepagePriority  Int               @default(0) @map("homepage_priority")
   status            ArticleStatus     @default(DRAFT)
   byline            String            @default("")
   articleDate       DateTime          @default(now()) @map("article_date") @db.Timestamptz(3)
@@ -145,6 +149,7 @@ model Article {
   @@index([currentEditorId])
   @@index([categoryId])
   @@index([status, publishedAt])
+  @@index([status, isHeadline, homepagePriority])
   @@map("articles")
 }
 

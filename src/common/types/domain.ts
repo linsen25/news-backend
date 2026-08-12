@@ -85,6 +85,10 @@ export interface Article {
   keywords: string[];
   content: TipTapDocument;
   coverImage: string;
+  coverFocalX: number;
+  coverFocalY: number;
+  isHeadline: boolean;
+  homepagePriority: number;
   byline: string;
   articleDate: string;
   author: Pick<User, 'id' | 'name'>;

@@ -113,7 +113,8 @@ describe('Articles API (e2e)', () => {
             },
           ],
         },
-        coverImage: '',
+        coverImage: 'https://example.com/e2e-cover.jpg',
+        articleDate: new Date().toISOString(),
         authorId: 'user-author',
         currentEditorId: 'user-author',
         categoryId: 'cat-tech',
@@ -198,6 +199,7 @@ describe('Articles API (e2e)', () => {
       .post('/api/articles')
       .auth(tokens.reviewer, { type: 'bearer' })
       .send({
+        articleDate: new Date().toISOString(),
         title: '审核员不能创建',
         authorId: 'user-reviewer',
         categoryId: 'cat-tech',
@@ -297,6 +299,7 @@ describe('Articles API (e2e)', () => {
       .post('/api/articles')
       .auth(tokens.author, { type: 'bearer' })
       .send({
+        articleDate: new Date().toISOString(),
         title: 'Duplicate slug',
         slug: 'generative-ai-newsroom',
         authorId: 'user-author',

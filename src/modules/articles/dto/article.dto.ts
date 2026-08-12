@@ -44,6 +44,18 @@ export class ArticleDto {
   @ApiProperty({ example: 'https://example.com/cover.jpg' })
   coverImage!: string;
 
+  @ApiProperty({ default: 50, minimum: 0, maximum: 100 })
+  coverFocalX!: number;
+
+  @ApiProperty({ default: 50, minimum: 0, maximum: 100 })
+  coverFocalY!: number;
+
+  @ApiProperty({ default: false })
+  isHeadline!: boolean;
+
+  @ApiProperty({ default: 0 })
+  homepagePriority!: number;
+
   @ApiProperty({ example: '李明（本报特约记者）' })
   byline!: string;
 

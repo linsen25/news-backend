@@ -177,6 +177,10 @@ export class ArticlesRepository {
     keywords: string[];
     content: TipTapDocument;
     coverImage: string;
+    coverFocalX: number;
+    coverFocalY: number;
+    isHeadline: boolean;
+    homepagePriority: number;
     byline: string;
     articleDate: Date;
     authorId: string;
@@ -202,6 +206,10 @@ export class ArticlesRepository {
           keywords: input.keywords,
           content: input.content as object,
           coverImage: input.coverImage,
+          coverFocalX: input.coverFocalX,
+          coverFocalY: input.coverFocalY,
+          isHeadline: input.isHeadline,
+          homepagePriority: input.homepagePriority,
           byline: input.byline,
           articleDate: input.articleDate,
           authorId: input.authorId,
@@ -241,6 +249,10 @@ export class ArticlesRepository {
       keywords?: string[];
       content?: TipTapDocument;
       coverImage?: string;
+      coverFocalX?: number;
+      coverFocalY?: number;
+      isHeadline?: boolean;
+      homepagePriority?: number;
       byline?: string;
       articleDate?: Date;
       currentEditorId: string;
@@ -290,6 +302,10 @@ export class ArticlesRepository {
           keywords: input.keywords,
           content: input.content as object | undefined,
           coverImage: input.coverImage,
+          coverFocalX: input.coverFocalX,
+          coverFocalY: input.coverFocalY,
+          isHeadline: input.isHeadline,
+          homepagePriority: input.homepagePriority,
           byline: input.byline,
           articleDate: input.articleDate,
           currentEditorId: input.currentEditorId,
@@ -336,6 +352,10 @@ export class ArticlesRepository {
             keywords: article.keywords,
             content: article.content,
             coverImage: article.coverImage,
+            coverFocalX: article.coverFocalX,
+            coverFocalY: article.coverFocalY,
+            isHeadline: article.isHeadline,
+            homepagePriority: article.homepagePriority,
             byline: article.byline,
             articleDate: article.articleDate.toISOString(),
             categoryId: article.categoryId,
@@ -370,6 +390,10 @@ export class ArticlesRepository {
       keywords: row.keywords,
       content: row.content as unknown as TipTapDocument,
       coverImage: row.coverImage,
+      coverFocalX: row.coverFocalX,
+      coverFocalY: row.coverFocalY,
+      isHeadline: row.isHeadline,
+      homepagePriority: row.homepagePriority,
       byline: row.byline,
       articleDate: row.articleDate.toISOString(),
       author: { id: row.author.id, name: row.author.name },
@@ -403,6 +427,10 @@ export class ArticlesRepository {
     if (row.status !== 'PUBLISHED' && row.publishedSnapshot) {
       return {
         ...(row.publishedSnapshot as unknown as Article),
+        coverFocalX: row.coverFocalX,
+        coverFocalY: row.coverFocalY,
+        isHeadline: row.isHeadline,
+        homepagePriority: row.homepagePriority,
         viewCount: row.viewCount,
         lastViewedAt: row.lastViewedAt?.toISOString() ?? null,
       };

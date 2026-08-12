@@ -1930,6 +1930,26 @@
             "type": "string",
             "example": "https://example.com/cover.jpg"
           },
+          "coverFocalX": {
+            "type": "number",
+            "default": 50,
+            "minimum": 0,
+            "maximum": 100
+          },
+          "coverFocalY": {
+            "type": "number",
+            "default": 50,
+            "minimum": 0,
+            "maximum": 100
+          },
+          "isHeadline": {
+            "type": "boolean",
+            "default": false
+          },
+          "homepagePriority": {
+            "type": "number",
+            "default": 0
+          },
           "byline": {
             "type": "string",
             "example": "李明（本报特约记者）"
@@ -2002,6 +2022,10 @@
           "keywords",
           "content",
           "coverImage",
+          "coverFocalX",
+          "coverFocalY",
+          "isHeadline",
+          "homepagePriority",
           "byline",
           "articleDate",
           "status",
@@ -2193,6 +2217,30 @@
             "type": "string",
             "example": "https://example.com/cover.jpg"
           },
+          "coverFocalX": {
+            "type": "number",
+            "default": 50,
+            "minimum": 0,
+            "maximum": 100
+          },
+          "coverFocalY": {
+            "type": "number",
+            "default": 50,
+            "minimum": 0,
+            "maximum": 100
+          },
+          "isHeadline": {
+            "type": "boolean",
+            "default": false,
+            "description": "管理员设置的首页头条候选"
+          },
+          "homepagePriority": {
+            "type": "number",
+            "default": 0,
+            "minimum": 0,
+            "maximum": 999,
+            "description": "首页人工排序权重，数值越大越靠前"
+          },
           "byline": {
             "type": "string",
             "example": "李明（本报特约记者）",
@@ -2285,6 +2333,30 @@
           "coverImage": {
             "type": "string",
             "example": "https://example.com/cover.jpg"
+          },
+          "coverFocalX": {
+            "type": "number",
+            "default": 50,
+            "minimum": 0,
+            "maximum": 100
+          },
+          "coverFocalY": {
+            "type": "number",
+            "default": 50,
+            "minimum": 0,
+            "maximum": 100
+          },
+          "isHeadline": {
+            "type": "boolean",
+            "default": false,
+            "description": "管理员设置的首页头条候选"
+          },
+          "homepagePriority": {
+            "type": "number",
+            "default": 0,
+            "minimum": 0,
+            "maximum": 999,
+            "description": "首页人工排序权重，数值越大越靠前"
           },
           "byline": {
             "type": "string",

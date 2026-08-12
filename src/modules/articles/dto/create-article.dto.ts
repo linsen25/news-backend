@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { ArrayMinSize, IsArray, IsDateString, IsIn, IsObject, IsOptional, IsString, MaxLength } from 'class-validator';
+import { ArrayMinSize, IsArray, IsBoolean, IsDateString, IsIn, IsInt, IsObject, IsOptional, IsString, Max, MaxLength, Min } from 'class-validator';
 import { ArticleStatus, TipTapDocument } from '../../../common/types/domain';
 import { TipTapDocumentDto } from '../../../common/dto/reference.dto';
 
@@ -45,6 +45,32 @@ export class CreateArticleDto {
   @IsString()
   @IsOptional()
   coverImage?: string;
+
+  @ApiPropertyOptional({ default: 50, minimum: 0, maximum: 100 })
+  @IsInt()
+  @Min(0)
+  @Max(100)
+  @IsOptional()
+  coverFocalX?: number;
+
+  @ApiPropertyOptional({ default: 50, minimum: 0, maximum: 100 })
+  @IsInt()
+  @Min(0)
+  @Max(100)
+  @IsOptional()
+  coverFocalY?: number;
+
+  @ApiPropertyOptional({ default: false, description: '管理员设置的首页头条候选' })
+  @IsBoolean()
+  @IsOptional()
+  isHeadline?: boolean;
+
+  @ApiPropertyOptional({ default: 0, minimum: 0, maximum: 999, description: '首页人工排序权重，数值越大越靠前' })
+  @IsInt()
+  @Min(0)
+  @Max(999)
+  @IsOptional()
+  homepagePriority?: number;
 
   @ApiPropertyOptional({ example: '李明（本报特约记者）', description: '面向读者展示的文章署名；与后台录入账号分开' })
   @IsString()
