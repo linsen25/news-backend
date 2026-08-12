@@ -16,6 +16,8 @@ export type PermissionKey =
   | 'articles.review.decide'
   | 'articles.publish'
   | 'articles.withdraw'
+  | 'homepage.view'
+  | 'homepage.manage'
   | 'media.view'
   | 'media.upload'
   | 'media.delete'
@@ -25,7 +27,7 @@ export type PermissionKey =
 export interface Permission {
   id: string;
   key: PermissionKey;
-  module: 'articles.edit' | 'articles.review' | 'media.manage' | 'accounts.manage';
+  module: 'articles.edit' | 'articles.review' | 'homepage.manage' | 'media.manage' | 'accounts.manage';
   name: string;
 }
 
@@ -123,6 +125,7 @@ export type AuditAction =
   | 'PUBLISH_ARTICLE'
   | 'DELETE_ARTICLE'
   | 'WITHDRAW_ARTICLE'
+  | 'UPDATE_HOMEPAGE'
   | 'LOGIN';
 
 export interface AuditLog {

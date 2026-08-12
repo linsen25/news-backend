@@ -10,6 +10,8 @@ export const mockPermissions: Permission[] = [
   { id: 'perm-review-decide', key: 'articles.review.decide', module: 'articles.review', name: '通过或退回文章' },
   { id: 'perm-publish', key: 'articles.publish', module: 'articles.review', name: '发布审核通过的文章' },
   { id: 'perm-withdraw', key: 'articles.withdraw', module: 'articles.review', name: '撤下已经公开的文章' },
+  { id: 'perm-homepage-view', key: 'homepage.view', module: 'homepage.manage', name: '查看首页编排' },
+  { id: 'perm-homepage-manage', key: 'homepage.manage', module: 'homepage.manage', name: '管理首页编排' },
   { id: 'perm-media-view', key: 'media.view', module: 'media.manage', name: '查看媒体库' },
   { id: 'perm-media-upload', key: 'media.upload', module: 'media.manage', name: '上传媒体' },
   { id: 'perm-media-delete', key: 'media.delete', module: 'media.manage', name: '删除自己的媒体' },

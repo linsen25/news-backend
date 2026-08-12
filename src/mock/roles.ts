@@ -8,6 +8,7 @@ export const mockRoles: Role[] = [
       'articles.view.own', 'articles.create', 'articles.edit.own',
       'articles.save.draft', 'articles.submit', 'articles.review.view',
       'media.view', 'media.upload', 'media.delete', 'users.view',
+      'homepage.view',
     ],
   },
   {
@@ -15,6 +16,7 @@ export const mockRoles: Role[] = [
     name: 'Reviewer',
     permissionKeys: [
       'articles.review.view', 'articles.review.decide', 'media.view', 'users.view',
+      'homepage.view',
     ],
   },
   {
@@ -25,6 +27,7 @@ export const mockRoles: Role[] = [
       'articles.save.draft', 'articles.submit', 'articles.review.view',
       'articles.review.decide', 'articles.publish', 'articles.withdraw', 'media.view',
       'media.upload', 'media.delete', 'users.view', 'users.permissions.manage',
+      'homepage.view', 'homepage.manage',
     ],
   },
 ];

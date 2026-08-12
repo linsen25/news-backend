@@ -21,6 +21,7 @@ model User {
   auditLogs        AuditLog[]
   mediaAssets      MediaAsset[]
   reviewComments   ReviewComment[]
+  homepageSlots    HomepageSlot[]    @relation("HomepageSlotCreator")
   roles            UserRole[]
 
   @@map("users")
@@ -144,6 +145,7 @@ model Article {
   auditLogs         AuditLog[]
   reviewComments    ReviewComment[]
   views             ArticleView[]
+  homepageSlots     HomepageSlot[]
 
   @@index([authorId])
   @@index([currentEditorId])
@@ -151,6 +153,26 @@ model Article {
   @@index([status, publishedAt])
   @@index([status, isHeadline, homepagePriority])
   @@map("articles")
+}
+
+model HomepageSlot {
+  id          String    @id @default(cuid())
+  section     String
+  scope       String    @default("global")
+  position    Int
+  articleId   String    @map("article_id")
+  startsAt    DateTime? @map("starts_at") @db.Timestamptz(3)
+  endsAt      DateTime? @map("ends_at") @db.Timestamptz(3)
+  createdById String    @map("created_by_id")
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt   DateTime  @updatedAt @map("updated_at") @db.Timestamptz(3)
+  article     Article   @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  createdBy   User      @relation("HomepageSlotCreator", fields: [createdById], references: [id])
+
+  @@unique([section, scope, position])
+  @@unique([section, scope, articleId])
+  @@index([startsAt, endsAt])
+  @@map("homepage_slots")
 }
 
 model ArticleView {
@@ -272,6 +294,7 @@ enum AuditAction {
   LOGIN
   DELETE_ARTICLE
   WITHDRAW_ARTICLE
+  UPDATE_HOMEPAGE
 
   @@map("audit_action")
 }

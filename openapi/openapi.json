@@ -1425,6 +1425,92 @@
           "Revisions"
         ]
       }
+    },
+    "/api/homepage/public": {
+      "get": {
+        "operationId": "HomepageController_findPublic",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HomepageLayoutDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "jwt": []
+          }
+        ],
+        "tags": [
+          "Homepage"
+        ]
+      }
+    },
+    "/api/homepage": {
+      "get": {
+        "operationId": "HomepageController_findAll",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HomepageLayoutDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "jwt": []
+          }
+        ],
+        "tags": [
+          "Homepage"
+        ]
+      },
+      "put": {
+        "operationId": "HomepageController_replace",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateHomepageLayoutDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HomepageLayoutDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "jwt": []
+          }
+        ],
+        "tags": [
+          "Homepage"
+        ]
+      }
     }
   },
   "info": {
@@ -2597,6 +2683,118 @@
           "uploadedBy",
           "createdAt",
           "referenceCount"
+        ]
+      },
+      "HomepageSlotDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "section": {
+            "type": "string",
+            "enum": [
+              "headline_main",
+              "headline_secondary",
+              "category_featured"
+            ]
+          },
+          "scope": {
+            "type": "string"
+          },
+          "position": {
+            "type": "number"
+          },
+          "article": {
+            "$ref": "#/components/schemas/ArticleDto"
+          },
+          "startsAt": {
+            "type": "object",
+            "format": "date-time",
+            "nullable": true
+          },
+          "endsAt": {
+            "type": "object",
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "section",
+          "scope",
+          "position",
+          "article"
+        ]
+      },
+      "HomepageLayoutDto": {
+        "type": "object",
+        "properties": {
+          "slots": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/HomepageSlotDto"
+            }
+          }
+        },
+        "required": [
+          "slots"
+        ]
+      },
+      "HomepageSlotInputDto": {
+        "type": "object",
+        "properties": {
+          "section": {
+            "type": "string",
+            "enum": [
+              "headline_main",
+              "headline_secondary",
+              "category_featured"
+            ]
+          },
+          "scope": {
+            "type": "string",
+            "example": "global",
+            "description": "global，或分类 ID"
+          },
+          "position": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 9
+          },
+          "articleId": {
+            "type": "string"
+          },
+          "startsAt": {
+            "type": "object",
+            "format": "date-time",
+            "nullable": true
+          },
+          "endsAt": {
+            "type": "object",
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "required": [
+          "section",
+          "scope",
+          "position",
+          "articleId"
+        ]
+      },
+      "UpdateHomepageLayoutDto": {
+        "type": "object",
+        "properties": {
+          "slots": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/HomepageSlotInputDto"
+            }
+          }
+        },
+        "required": [
+          "slots"
         ]
       }
     }

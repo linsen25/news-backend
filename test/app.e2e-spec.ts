@@ -328,4 +328,31 @@ describe('Articles API (e2e)', () => {
       .auth(tokens.author, { type: 'bearer' })
       .expect(200);
   });
+
+  it('exposes homepage layout publicly and protects editorial changes', async () => {
+    await request(app.getHttpServer())
+      .get('/api/homepage/public')
+      .expect(200)
+      .expect(({ body }) => expect(Array.isArray(body.slots)).toBe(true));
+
+    const current = await request(app.getHttpServer())
+      .get('/api/homepage')
+      .auth(tokens.author, { type: 'bearer' })
+      .expect(200);
+
+    await request(app.getHttpServer())
+      .put('/api/homepage')
+      .auth(tokens.author, { type: 'bearer' })
+      .send({ slots: [] })
+      .expect(403);
+
+    await request(app.getHttpServer())
+      .put('/api/homepage')
+      .auth(tokens.admin, { type: 'bearer' })
+      .send({ slots: current.body.slots.map((slot: Record<string, any>) => ({
+        section: slot.section, scope: slot.scope, position: slot.position,
+        articleId: slot.article.id, startsAt: slot.startsAt, endsAt: slot.endsAt,
+      })) })
+      .expect(200);
+  });
 });
