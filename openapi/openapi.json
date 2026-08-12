@@ -1511,6 +1511,32 @@
           "Homepage"
         ]
       }
+    },
+    "/api/analytics/overview": {
+      "get": {
+        "operationId": "AnalyticsController_overview",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnalyticsOverviewDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "jwt": []
+          }
+        ],
+        "tags": [
+          "Analytics"
+        ]
+      }
     }
   },
   "info": {
@@ -2795,6 +2821,126 @@
         },
         "required": [
           "slots"
+        ]
+      },
+      "AnalyticsStatusCountsDto": {
+        "type": "object",
+        "properties": {
+          "total": {
+            "type": "number"
+          },
+          "draft": {
+            "type": "number"
+          },
+          "review": {
+            "type": "number"
+          },
+          "approved": {
+            "type": "number"
+          },
+          "rejected": {
+            "type": "number"
+          },
+          "published": {
+            "type": "number"
+          },
+          "withdrawn": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "total",
+          "draft",
+          "review",
+          "approved",
+          "rejected",
+          "published",
+          "withdrawn"
+        ]
+      },
+      "AnalyticsTrendPointDto": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "example": "2026-08-12"
+          },
+          "views": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "date",
+          "views"
+        ]
+      },
+      "AnalyticsArticleDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          },
+          "viewCount": {
+            "type": "number"
+          },
+          "publishedAt": {
+            "type": "object",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "slug",
+          "category",
+          "viewCount",
+          "publishedAt"
+        ]
+      },
+      "AnalyticsOverviewDto": {
+        "type": "object",
+        "properties": {
+          "statuses": {
+            "$ref": "#/components/schemas/AnalyticsStatusCountsDto"
+          },
+          "totalViews": {
+            "type": "number"
+          },
+          "viewsLast7Days": {
+            "type": "number"
+          },
+          "publishedLast30Days": {
+            "type": "number"
+          },
+          "trend": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AnalyticsTrendPointDto"
+            }
+          },
+          "topArticles": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AnalyticsArticleDto"
+            }
+          }
+        },
+        "required": [
+          "statuses",
+          "totalViews",
+          "viewsLast7Days",
+          "publishedLast30Days",
+          "trend",
+          "topArticles"
         ]
       }
     }

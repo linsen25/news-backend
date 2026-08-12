@@ -11,6 +11,7 @@ import { ReviewCommentsModule } from './modules/review-comments/review-comments.
 import { DatabaseModule } from './infrastructure/database/database.module';
 import { HealthModule } from './modules/health/health.module';
 import { HomepageModule } from './modules/homepage/homepage.module';
+import { AnalyticsModule } from './modules/analytics/analytics.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { HomepageModule } from './modules/homepage/homepage.module';
     AuditModule,
     ReviewCommentsModule,
     HomepageModule,
+    AnalyticsModule,
   ],
 })
 export class AppModule {}
