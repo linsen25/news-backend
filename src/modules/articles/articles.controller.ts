@@ -34,6 +34,7 @@ import { JwtService } from '@nestjs/jwt';
 import { ApproveArticleDto } from './dto/approve-article.dto';
 import { WithdrawArticleDto } from './dto/withdraw-article.dto';
 import { WithdrawalNoticeDto } from './dto/withdrawal-notice.dto';
+import { ArticleViewCountDto, RecordArticleViewDto } from './dto/record-article-view.dto';
 
 @ApiTags('Articles', 'Review')
 @ApiBearerAuth('jwt')
@@ -72,6 +73,15 @@ export class ArticlesController {
   @ApiOkResponse({ type: ArticleDto })
   findPublishedBySlug(@Param('slug') slug: string) {
     return this.articlesService.findPublishedBySlug(slug);
+  }
+
+  @Post('public/slug/:slug/view')
+  @Public()
+  @HttpCode(200)
+  @ApiOperation({ summary: 'Record a public article view with a 30-minute visitor deduplication window' })
+  @ApiOkResponse({ type: ArticleViewCountDto })
+  recordPublicView(@Param('slug') slug: string, @Body() input: RecordArticleViewDto) {
+    return this.articlesService.recordPublicView(slug, input.visitorId);
   }
 
   @Get('public/withdrawn/slug/:slug')
@@ -200,7 +210,7 @@ export class ArticlesController {
 
   @Post(':id/publish')
   @HttpCode(200)
-  @Permissions('articles.withdraw')
+  @Permissions('articles.publish')
   @ApiOperation({ summary: 'Publish approved article' })
   @ApiOkResponse({ type: ArticleDto })
   publish(
@@ -212,7 +222,7 @@ export class ArticlesController {
 
   @Post(':id/withdraw')
   @HttpCode(200)
-  @Permissions('articles.publish')
+  @Permissions('articles.withdraw')
   @ApiOperation({ summary: 'Withdraw a publicly visible article' })
   @ApiOkResponse({ type: ArticleDto })
   withdraw(@Param('id') id: string, @Body() input: WithdrawArticleDto, @CurrentUser() user: User) {

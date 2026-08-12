@@ -272,6 +272,10 @@ export class ArticlesService {
     return article;
   }
 
+  recordPublicView(slug: string, visitorId: string) {
+    return this.articles.recordPublicViewBySlug(slug, visitorId);
+  }
+
   async findWithdrawalBySlug(slug: string) {
     const notice = await this.articles.findWithdrawalBySlug(slug);
     if (!notice?.withdrawalReason || !notice.withdrawnAt) {

@@ -71,6 +71,39 @@ export class ArticlesRepository {
     return row ? this.toPublicDomain(row) : null;
   }
 
+  async recordPublicViewBySlug(slug: string, visitorId: string): Promise<{ viewCount: number; counted: boolean }> {
+    const article = await this.prisma.article.findFirst({
+      where: {
+        status: { not: 'WITHDRAWN' },
+        OR: [
+          { status: 'PUBLISHED', slug },
+          { publishedSlug: slug },
+        ],
+      },
+      select: { id: true, viewCount: true },
+    });
+    if (!article) return { viewCount: 0, counted: false };
+
+    const cutoff = new Date(Date.now() - 30 * 60 * 1000);
+    return this.prisma.$transaction(async (tx) => {
+      const recent = await tx.articleView.findFirst({
+        where: { articleId: article.id, visitorId, viewedAt: { gte: cutoff } },
+        select: { id: true },
+      });
+      if (recent) {
+        const current = await tx.article.findUniqueOrThrow({ where: { id: article.id }, select: { viewCount: true } });
+        return { viewCount: current.viewCount, counted: false };
+      }
+      await tx.articleView.create({ data: { articleId: article.id, visitorId } });
+      const updated = await tx.article.update({
+        where: { id: article.id },
+        data: { viewCount: { increment: 1 }, lastViewedAt: new Date() },
+        select: { viewCount: true },
+      });
+      return { viewCount: updated.viewCount, counted: true };
+    });
+  }
+
   async findPage(input: {
     page: number;
     limit: number;
@@ -361,12 +394,18 @@ export class ArticlesRepository {
       updatedAt: row.updatedAt.toISOString(),
       publishedAt: row.publishedAt?.toISOString() ?? null,
       hasPublishedVersion: row.status !== 'WITHDRAWN' && Boolean(row.publishedSnapshot),
+      viewCount: row.viewCount,
+      lastViewedAt: row.lastViewedAt?.toISOString() ?? null,
     };
   }
 
   private toPublicDomain(row: NonNullable<ArticleRecord>): Article {
     if (row.status !== 'PUBLISHED' && row.publishedSnapshot) {
-      return row.publishedSnapshot as unknown as Article;
+      return {
+        ...(row.publishedSnapshot as unknown as Article),
+        viewCount: row.viewCount,
+        lastViewedAt: row.lastViewedAt?.toISOString() ?? null,
+      };
     }
     return this.toDomain(row);
   }

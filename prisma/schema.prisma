@@ -126,6 +126,8 @@ model Article {
   publishedSlug     String?           @unique @map("published_slug")
   withdrawalReason  String?           @map("withdrawal_reason")
   withdrawnAt       DateTime?         @map("withdrawn_at") @db.Timestamptz(3)
+  viewCount         Int               @default(0) @map("view_count")
+  lastViewedAt      DateTime?         @map("last_viewed_at") @db.Timestamptz(3)
   keywords          String[]          @default([])
   metaDescription   String            @default("") @map("meta_description")
   metaTitle         String            @default("") @map("meta_title")
@@ -137,12 +139,25 @@ model Article {
   currentEditor     User              @relation("ArticleCurrentEditor", fields: [currentEditorId], references: [id])
   auditLogs         AuditLog[]
   reviewComments    ReviewComment[]
+  views             ArticleView[]
 
   @@index([authorId])
   @@index([currentEditorId])
   @@index([categoryId])
   @@index([status, publishedAt])
   @@map("articles")
+}
+
+model ArticleView {
+  id        String   @id @default(cuid())
+  articleId String   @map("article_id")
+  visitorId String   @map("visitor_id")
+  viewedAt  DateTime @default(now()) @map("viewed_at") @db.Timestamptz(3)
+  article   Article  @relation(fields: [articleId], references: [id], onDelete: Cascade)
+
+  @@index([articleId, viewedAt])
+  @@index([articleId, visitorId, viewedAt])
+  @@map("article_views")
 }
 
 model ArticleTag {

@@ -1,15 +1,17 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { ArrayMinSize, IsArray, IsDateString, IsIn, IsObject, IsOptional, IsString } from 'class-validator';
+import { ArrayMinSize, IsArray, IsDateString, IsIn, IsObject, IsOptional, IsString, MaxLength } from 'class-validator';
 import { ArticleStatus, TipTapDocument } from '../../../common/types/domain';
 import { TipTapDocumentDto } from '../../../common/dto/reference.dto';
 
 export class CreateArticleDto {
   @ApiProperty({ example: '加拿大 AI 政策更新' })
   @IsString()
+  @MaxLength(80, { message: '文章标题不能超过80个字符' })
   title!: string;
 
   @ApiPropertyOptional({ example: 'canada-ai-policy' })
   @IsString()
+  @MaxLength(180, { message: '文章摘要不能超过180个字符' })
   @IsOptional()
   slug?: string;
 

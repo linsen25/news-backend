@@ -480,6 +480,53 @@
         ]
       }
     },
+    "/api/articles/public/slug/{slug}/view": {
+      "post": {
+        "operationId": "ArticlesController_recordPublicView",
+        "parameters": [
+          {
+            "name": "slug",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RecordArticleViewDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ArticleViewCountDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "jwt": []
+          }
+        ],
+        "summary": "Record a public article view with a 30-minute visitor deduplication window",
+        "tags": [
+          "Articles",
+          "Review"
+        ]
+      }
+    },
     "/api/articles/public/withdrawn/slug/{slug}": {
       "get": {
         "operationId": "ArticlesController_findWithdrawalBySlug",
@@ -1934,6 +1981,15 @@
           "hasPublishedVersion": {
             "type": "boolean",
             "description": "编辑中的文章是否仍有一个旧版本在线展示"
+          },
+          "viewCount": {
+            "type": "number",
+            "example": 128
+          },
+          "lastViewedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
           }
         },
         "required": [
@@ -1956,7 +2012,9 @@
           "createdAt",
           "updatedAt",
           "publishedAt",
-          "hasPublishedVersion"
+          "hasPublishedVersion",
+          "viewCount",
+          "lastViewedAt"
         ]
       },
       "ArticlePageDto": {
@@ -1986,6 +2044,37 @@
           "total",
           "page",
           "limit"
+        ]
+      },
+      "RecordArticleViewDto": {
+        "type": "object",
+        "properties": {
+          "visitorId": {
+            "type": "string",
+            "description": "Anonymous browser visitor identifier",
+            "example": "visitor-7f10d8d6"
+          }
+        },
+        "required": [
+          "visitorId"
+        ]
+      },
+      "ArticleViewCountDto": {
+        "type": "object",
+        "properties": {
+          "viewCount": {
+            "type": "number",
+            "example": 128
+          },
+          "counted": {
+            "type": "boolean",
+            "example": true,
+            "description": "Whether this request increased the count"
+          }
+        },
+        "required": [
+          "viewCount",
+          "counted"
         ]
       },
       "WithdrawalNoticeDto": {

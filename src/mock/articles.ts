@@ -32,6 +32,8 @@ export const mockArticles: Article[] = [
     updatedAt: '2026-07-22T10:30:00.000Z',
     publishedAt: '2026-07-22T12:00:00.000Z',
     hasPublishedVersion: false,
+    viewCount: 128,
+    lastViewedAt: '2026-07-22T12:30:00.000Z',
   },
   {
     id: 'article-002',
@@ -57,6 +59,8 @@ export const mockArticles: Article[] = [
     updatedAt: '2026-07-25T09:15:00.000Z',
     publishedAt: null,
     hasPublishedVersion: false,
+    viewCount: 42,
+    lastViewedAt: '2026-07-25T09:30:00.000Z',
   },
   {
     id: 'article-003',
@@ -79,5 +83,7 @@ export const mockArticles: Article[] = [
     updatedAt: '2026-07-26T08:00:00.000Z',
     publishedAt: null,
     hasPublishedVersion: false,
+    viewCount: 0,
+    lastViewedAt: null,
   },
 ];
